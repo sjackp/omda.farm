@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  server:
+    build: ./server
+    container_name: omda-farm-server
+    environment:
+      - NODE_ENV=production
+      - PORT=1988
+      # Provide your DB connection string at runtime or via .env
+      - DATABASE_URL=${DATABASE_URL}
+    ports:
+      - "1988:1988"
+    restart: unless-stopped
+
+  app:
+    build:
+      context: ./farm-manager
+      dockerfile: Dockerfile
+    container_name: omda-farm-app
+    depends_on:
+      - server
+    ports:
+      - "1987:80"
+    restart: unless-stopped
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    command: tunnel --no-autoupdate run --token eyJhIjoiOTVkYTc2YzRjZGRiMmNlMDE5ZTAyMTc0ODdiNmQ3ZGUiLCJ0IjoiMTNmNGM1ZmUtMGYwZS00YzAzLTk5NmEtYzYzOWJlM2ZkNTczIiwicyI6Ik1UWmpaR00wTnpFdE1XTTVNaTAwWVRZM0xUazFZbVF0TlRZeVpqVXdOVGRtT0RZMiJ9
+    depends_on:
+      - app
+      - server
+    restart: unless-stopped
+

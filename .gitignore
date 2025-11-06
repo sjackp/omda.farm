@@ -1,0 +1,22 @@
+# Node
+**/node_modules/
+**/.npmrc
+**/npm-debug.log*
+**/yarn.lock
+**/pnpm-lock.yaml
+
+# Build outputs
+**/dist/
+**/build/
+
+# Env files
+.env
+.env.local
+server/.env
+server/.env.local
+farm-manager/.env
+farm-manager/.env.local
+
+# MacOS
+.DS_Store
+
