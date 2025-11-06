@@ -48,9 +48,7 @@ export default function Sales() {
 
   const activeCows = useMemo(() => cows.filter((c: any) => c.status === 'active'), [cows])
 
-  function setLine<K extends keyof SaleLine>(id: string, key: K, value: SaleLine[K]) {
-    setLines((prev) => prev.map((ln) => (ln.id === id ? { ...ln, [key]: value } : ln)))
-  }
+  // helper removed (unused)
 
   function onCowChange(id: string, cowId: number | '') {
     setLines((prev) =>

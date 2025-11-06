@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { apiGet, apiPost, apiPatch } from '../lib/api'
+import { apiGet, apiPost } from '../lib/api'
 import { useCurrentCycle } from './cycles'
 import type { Cow } from './cows'
 

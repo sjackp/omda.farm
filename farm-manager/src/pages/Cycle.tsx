@@ -1,4 +1,5 @@
-import { FormEvent, useState } from 'react'
+import type { FormEvent } from 'react'
+import { useState } from 'react'
 import { useCurrentCycle, useCycles, useSetCurrentCycle } from '../hooks/cycles'
 import { apiPost } from '../lib/api'
 
