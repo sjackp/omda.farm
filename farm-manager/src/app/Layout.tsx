@@ -5,15 +5,15 @@ import { useTheme } from '../providers/ThemeProvider'
 import { useAuth } from '../providers/AuthProvider'
 
 const NAV = [
-  { href: '/', label: 'Dashboard' },
-  { href: '/herd', label: 'Herd' },
-  { href: '/groups', label: 'Groups' },
-  { href: '/feed', label: 'Feed' },
-  { href: '/sales', label: 'Sales' },
-  { href: '/expenses', label: 'Expenses' },
-  { href: '/finance', label: 'Finance' },
-  { href: '/cycle', label: 'Cycle' },
-  { href: '/settings', label: 'Settings' },
+  { href: '/', label: 'Dashboard', icon: 'dashboard' },
+  { href: '/herd', label: 'Herd', icon: 'pets' },
+  { href: '/groups', label: 'Groups', icon: 'fence' },
+  { href: '/feed', label: 'Feed', icon: 'grass' },
+  { href: '/sales', label: 'Sales', icon: 'receipt_long' },
+  { href: '/expenses', label: 'Expenses', icon: 'paid' },
+  { href: '/finance', label: 'Finance', icon: 'account_balance_wallet' },
+  { href: '/cycle', label: 'Cycle', icon: 'autorenew' },
+  { href: '/settings', label: 'Settings', icon: 'settings' },
 ]
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -33,7 +33,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
               {NAV.map((item) => {
                 const active = location === item.href
                 return (
-                  <Link key={item.href} href={item.href} className={`block rounded px-3 py-2 text-sm ${active ? 'bg-slate-100 dark:bg-slate-800 font-medium' : 'hover:bg-slate-100 dark:hover:bg-slate-900'}`}>
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`rounded px-3 py-2 text-sm flex items-center ${
+                      active ? 'bg-slate-100 dark:bg-slate-800 font-medium' : 'hover:bg-slate-100 dark:hover:bg-slate-900'
+                    }`}
+                  >
+                    {typeof item.icon === 'string' ? (
+                      <span className="material-symbols-outlined mr-3">{item.icon}</span>
+                    ) : (
+                      <span className="mr-3 inline-flex items-center">{item.icon}</span>
+                    )}
                     {item.label}
                   </Link>
                 )
@@ -75,7 +86,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <div className="h-14 border-b flex items-center px-3 font-semibold">Menu</div>
           <nav className="p-2 space-y-1">
             {NAV.map((item) => (
-              <Link key={item.href} href={item.href} onClick={() => setOpen(false)} className="block rounded px-3 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-900">
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setOpen(false)}
+                className="rounded px-3 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-900 flex items-center"
+              >
+                {typeof item.icon === 'string' ? (
+                  <span className="material-symbols-outlined mr-3">{item.icon}</span>
+                ) : (
+                  <span className="mr-3 inline-flex items-center">{item.icon}</span>
+                )}
                 {item.label}
               </Link>
             ))}

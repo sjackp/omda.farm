@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react'
-import { useCreateFoodItem, useFeedOnHand, useFeedMovements, useFoodItems, useRecordSupply, useRecordUsage } from '../hooks/feed'
+import { useCreateFoodItem, useFeedOnHand, useFeedMovements, useFoodItems, useRecordSupply } from '../hooks/feed'
 import { useCurrentCycle } from '../hooks/cycles'
-import { useGroups } from '../hooks/groups'
 import Button from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table'
@@ -11,11 +10,9 @@ export default function Feed() {
   const { data: onHand = [], isLoading: onHandLoading } = useFeedOnHand()
   const { data: movements = [], isLoading: movLoading } = useFeedMovements()
   const { data: items = [], isLoading: itemsLoading } = useFoodItems()
-  const { data: groups = [] } = useGroups()
   const { data: currentCycle } = useCurrentCycle()
 
   const supply = useRecordSupply()
-  const usage = useRecordUsage()
   const { mutate: createFoodItem } = useCreateFoodItem()
 
   const [supplyFoodId, setSupplyFoodId] = useState<number | ''>('')
@@ -24,11 +21,7 @@ export default function Feed() {
   const [supplyNotes, setSupplyNotes] = useState('')
   const [submittingSupply, setSubmittingSupply] = useState(false)
 
-  const [usageFoodId, setUsageFoodId] = useState<number | ''>('')
-  const [usageGroupId, setUsageGroupId] = useState<number | ''>('')
-  const [usageQty, setUsageQty] = useState('')
-  const [usageNotes, setUsageNotes] = useState('')
-  const [submittingUsage, setSubmittingUsage] = useState(false)
+  
 
   const [newFeedName, setNewFeedName] = useState('')
   const [newFeedUnit, setNewFeedUnit] = useState('kg')
@@ -72,22 +65,7 @@ export default function Feed() {
     setSupplyNotes('')
   }
 
-  async function handleUsageSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!currentCycle?.id || !usageFoodId || !usageQty || !usageGroupId) return
-    setSubmittingUsage(true)
-    await usage.mutate({
-      cycle_id: currentCycle.id,
-      food_item_id: Number(usageFoodId),
-      qty_kg: Number(usageQty),
-      usage_target_type: 'group',
-      group_id: Number(usageGroupId),
-      notes: usageNotes || undefined,
-    })
-    setSubmittingUsage(false)
-    setUsageQty('')
-    setUsageNotes('')
-  }
+  
 
   async function handleCreateFeedType(e: React.FormEvent) {
     e.preventDefault()
@@ -110,7 +88,6 @@ export default function Feed() {
       setNewFeedNotes('')
       if (created?.id) {
         setSupplyFoodId(created.id)
-        setUsageFoodId(created.id)
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to create feed type'
@@ -125,7 +102,7 @@ export default function Feed() {
       <div className="flex items-end justify-between">
         <div>
           <h1 className="text-xl font-semibold">Feed</h1>
-          <p className="text-sm text-slate-600">Track inventory, restock supplies, and allocate feed to groups.</p>
+          <p className="text-sm text-slate-600">Track inventory and restock supplies.</p>
         </div>
       </div>
 
@@ -266,53 +243,7 @@ export default function Feed() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Usage to group</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleUsageSubmit} className="grid grid-cols-1 gap-3">
-                <select
-                  className="border rounded-md px-3 py-2"
-                  value={String(usageFoodId)}
-                  onChange={(e) => setUsageFoodId(e.target.value === '' ? '' : Number(e.target.value))}
-                >
-                  <option value="">Select feed</option>
-                  {(items || []).map((f) => (
-                    <option key={f.id} value={f.id}>{f.name}</option>
-                  ))}
-                </select>
-                <select
-                  className="border rounded-md px-3 py-2"
-                  value={String(usageGroupId)}
-                  onChange={(e) => setUsageGroupId(e.target.value === '' ? '' : Number(e.target.value))}
-                >
-                  <option value="">Select group</option>
-                  {(groups || []).map((g) => (
-                    <option key={g.id} value={g.id}>Group {g.number}{g.name ? ` — ${g.name}` : ''}</option>
-                  ))}
-                </select>
-                <input
-                  className="border rounded-md px-3 py-2"
-                  placeholder="Qty (kg)"
-                  inputMode="decimal"
-                  value={usageQty}
-                  onChange={(e) => setUsageQty(e.target.value)}
-                />
-                <input
-                  className="border rounded-md px-3 py-2"
-                  placeholder="Notes (optional)"
-                  value={usageNotes}
-                  onChange={(e) => setUsageNotes(e.target.value)}
-                />
-                <div className="flex justify-end">
-                  <Button disabled={!currentCycle?.id || !usageFoodId || !usageGroupId || !usageQty || submittingUsage}>
-                    {submittingUsage ? 'Saving…' : 'Record Usage'}
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
+          
         </div>
       </div>
 

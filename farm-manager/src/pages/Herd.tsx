@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useCows, useCreateCow, useUpdateCowStatus, useAssignCowToGroup } from '../hooks/cows'
+import { useCows, useCreateCow, useAssignCowToGroup } from '../hooks/cows'
 import { useRecordWeighEvent } from '../hooks/weighs'
 import { useCurrentCycle } from '../hooks/cycles'
 import { useGroups } from '../hooks/groups'
@@ -9,7 +9,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 export default function Herd() {
   const { data: cows = [], isLoading, refetch } = useCows()
   const creator = useCreateCow()
-  const statusUpdater = useUpdateCowStatus()
   const assigner = useAssignCowToGroup()
   const { data: groups = [], isLoading: groupsLoading } = useGroups()
   const recorder = useRecordWeighEvent()
@@ -208,8 +207,7 @@ export default function Herd() {
                             >
                               Weigh In
                             </button>
-                            <button className="text-sm rounded border px-2 py-1" onClick={async () => { await statusUpdater.update(c.id, 'sold') }}>Mark Sold</button>
-                            <button className="text-sm rounded border px-2 py-1" onClick={async () => { await statusUpdater.update(c.id, 'dead') }}>Mark Dead</button>
+                            {/* Removed Mark Sold / Mark Dead actions */}
                           </div>
                         </TableCell>
                       </TableRow>
