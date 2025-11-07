@@ -202,6 +202,34 @@ app.get('/api/cows', async (req, res) => {
   }
 })
 
+// Single cow by id (includes same lateral latest weight join)
+app.get('/api/cows/:id', async (req, res) => {
+  const id = Number(req.params.id)
+  if (!id) return res.status(400).json({ error: 'id is required' })
+  try {
+    const { rows } = await query(
+      `select c.*, a.group_id as current_group_id, g.number as current_group_number, lw.weight_kg as latest_weight_kg
+         from public.cow c
+         left join public.cow_group_assignment a on a.cow_id = c.id and a.end_date is null
+         left join public.herd_group g on g.id = a.group_id
+         left join lateral (
+           select we.weight_kg
+             from public.weigh_event we
+            where we.cow_id = c.id
+            order by we.weighed_at desc, we.created_at desc
+            limit 1
+         ) lw on true
+        where c.id = $1
+        limit 1`,
+      [id]
+    )
+    if (!rows.length) return res.status(404).json({ error: 'Not found' })
+    res.json(rows[0])
+  } catch (e) {
+    res.status(500).json({ error: String(e.message || e) })
+  }
+})
+
 app.post('/api/cows', async (req, res) => {
   const { cycle_id, external_id, breed, purchase_price, purchase_currency_code, purchase_date } = req.body || {}
   if (!cycle_id || !external_id) return res.status(400).json({ error: 'cycle_id and external_id are required' })
@@ -380,8 +408,21 @@ app.post('/api/expenses', async (req, res) => {
 // Sales
 app.get('/api/sales', async (req, res) => {
   const cycleId = Number(req.query.cycle_id)
-  if (!cycleId) return res.status(400).json({ error: 'cycle_id is required' })
+  const cowId = Number(req.query.cow_id)
   try {
+    if (cowId) {
+      const { rows } = await query(
+        `select s.*, to_jsonb(c) - 'created_at' as cow, to_jsonb(b) - 'created_at' as buyer
+           from public.sale s
+           join public.cow c on c.id = s.cow_id
+           join public.buyer b on b.id = s.buyer_id
+          where s.cow_id = $1
+          order by s.date_sold desc, s.created_at desc`,
+        [cowId]
+      )
+      return res.json(rows)
+    }
+    if (!cycleId) return res.status(400).json({ error: 'cycle_id is required when cow_id is not provided' })
     const { rows } = await query(
       `select s.*, to_jsonb(c) - 'created_at' as cow, to_jsonb(b) - 'created_at' as buyer
          from public.sale s

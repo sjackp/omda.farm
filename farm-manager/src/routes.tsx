@@ -12,6 +12,7 @@ import Finance from './pages/Finance'
 import Weights from './pages/Weights'
 import Cycle from './pages/Cycle'
 import Settings from './pages/Settings'
+import Cow from './pages/Cow'
 
 export default function AppRoutes() {
   const { user, status } = useAuth()
@@ -51,6 +52,7 @@ export default function AppRoutes() {
         <Route path="/finance" component={Finance} />
         <Route path="/cycle" component={Cycle} />
         <Route path="/settings" component={Settings} />
+        <Route path="/cow/:id">{(params) => <Cow id={Number(params.id)} />}</Route>
         <Route>
           <Redirect to="/" />
         </Route>

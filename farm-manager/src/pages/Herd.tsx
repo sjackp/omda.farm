@@ -4,6 +4,7 @@ import { useRecordWeighEvent } from '../hooks/weighs'
 import { useCurrentCycle } from '../hooks/cycles'
 import { useGroups } from '../hooks/groups'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
+import { Link } from 'wouter'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table'
 
 export default function Herd() {
@@ -187,7 +188,9 @@ export default function Herd() {
                   ) : (
                     filtered.map((c) => (
                       <TableRow key={c.id}>
-                        <TableCell className="font-medium">{c.external_id}</TableCell>
+                        <TableCell className="font-medium">
+                          <Link href={`/cow/${c.id}`} className="hover:underline">{c.external_id}</Link>
+                        </TableCell>
                         <TableCell>{c.breed ?? '-'}</TableCell>
                         <TableCell>{c.current_group_number ? `Group ${c.current_group_number}` : '-'}</TableCell>
                         <TableCell>{c.latest_weight_kg ?? '-'}</TableCell>
