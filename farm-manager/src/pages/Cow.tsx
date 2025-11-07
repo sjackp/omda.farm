@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { motion } from 'framer-motion'
+import { useEffect, useMemo, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
 import { Badge } from '../components/ui/badge'
 import Button from '../components/ui/button'
 import { Calendar, Weight as WeightIcon, DollarSign, ArrowLeft, ArrowRight } from 'lucide-react'
-import { ResponsiveContainer, LineChart, Line, Tooltip, XAxis, YAxis, CartesianGrid } from 'recharts'
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts'
 import { useWeighEvents } from '../hooks/weighs'
 import { apiGet } from '../lib/api'
 import type { Cow as CowType } from '../hooks/cows'
@@ -64,40 +63,12 @@ export default function Cow({ id }: { id: number }) {
     }))
   }, [events])
 
-  const minW = useMemo(() => points.reduce((m, p) => Math.min(m, p.weight), Number.POSITIVE_INFINITY), [points])
-  const maxW = useMemo(() => points.reduce((m, p) => Math.max(m, p.weight), Number.NEGATIVE_INFINITY), [points])
-  const minT = useMemo(() => points.reduce((m, p) => Math.min(m, p.t), Number.POSITIVE_INFINITY), [points])
-  const maxT = useMemo(() => points.reduce((m, p) => Math.max(m, p.t), Number.NEGATIVE_INFINITY), [points])
-
   const [selectedIndex, setSelectedIndex] = useState<number>(points.length ? points.length - 1 : 0)
   useEffect(() => { setSelectedIndex(points.length ? points.length - 1 : 0) }, [points.length])
 
-  const width = 720
-  const height = 240
-  const padding = 24
-
-  function xFor(t: number) {
-    if (!Number.isFinite(minT) || minT === maxT) return padding
-    return padding + ((t - minT) / (maxT - minT)) * (width - padding * 2)
-  }
-  function yFor(w: number) {
-    if (!Number.isFinite(minW) || minW === maxW) return height - padding
-    // invert y (higher weight -> lower y)
-    return padding + (1 - (w - minW) / (maxW - minW)) * (height - padding * 2)
-  }
-
-  const polyline = useMemo(() => {
-    if (points.length === 0) return ''
-    return points.map((p) => `${xFor(p.t)},${yFor(p.weight)}`).join(' ')
-  }, [points])
-
   const active = points[selectedIndex]
-  const activeX = active ? xFor(active.t) : padding
-  const activeY = active ? yFor(active.weight) : height - padding
 
   // scale removed (background cow removed per updated design)
-
-  const latestWeight = cow?.latest_weight_kg ?? (points.length ? points[points.length - 1].weight : null)
 
   // Meta stats
   const startWeight = points.length ? points[0].weight : null
@@ -231,8 +202,8 @@ export default function Cow({ id }: { id: number }) {
               ) : null}
               {/* Controls centered */}
               <div className="absolute left-0 right-0 bottom-6 flex items-center justify-center gap-2">
-                <Button size="sm" variant="outline" onClick={() => setSelectedIndex((i) => Math.max(0, i - 1))}><ArrowLeft className="w-4 h-4"/></Button>
-                <Button size="sm" variant="outline" onClick={() => setSelectedIndex((i) => Math.min(points.length - 1, i + 1))}><ArrowRight className="w-4 h-4"/></Button>
+                <Button variant="outline" onClick={() => setSelectedIndex((i) => Math.max(0, i - 1))}><ArrowLeft className="w-4 h-4"/></Button>
+                <Button variant="outline" onClick={() => setSelectedIndex((i) => Math.min(points.length - 1, i + 1))}><ArrowRight className="w-4 h-4"/></Button>
               </div>
             </div>
           )}
