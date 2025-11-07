@@ -183,7 +183,7 @@ export default function Groups() {
                         const selectedMap = selectedByGroup[g.id] ?? {}
                         const qtyMap = qtyByGroup[g.id] ?? {}
                         const entries = Object.entries(selectedMap)
-                          .filter(([foodId, isChecked]) => isChecked)
+                          .filter(([, isChecked]) => isChecked)
                           .map(([foodId]) => {
                             const qtyStr = qtyMap[Number(foodId)] ?? ''
                             const qtyNum = Number(qtyStr)
