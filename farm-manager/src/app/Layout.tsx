@@ -23,6 +23,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const { theme, toggle } = useTheme()
   const { user, logout } = useAuth()
 
+  const iconColorByHref: Record<string, string> = {
+    '/': 'text-blue-600',
+    '/herd': 'text-emerald-600',
+    '/groups': 'text-violet-600',
+    '/feed': 'text-amber-600',
+    '/vaccines': 'text-rose-600',
+    '/sales': 'text-cyan-600',
+    '/expenses': 'text-orange-600',
+    '/finance': 'text-fuchsia-600',
+    '/cycle': 'text-teal-600',
+    '/settings': 'text-slate-600',
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
       <div className="w-full">
@@ -43,9 +56,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     }`}
                   >
                     {typeof item.icon === 'string' ? (
-                      <span className="material-symbols-outlined mr-3 text-blue-600">{item.icon}</span>
+                      <span className={`material-symbols-outlined mr-3 ${iconColorByHref[item.href] || 'text-blue-600'}`}>{item.icon}</span>
                     ) : (
-                      <span className="mr-3 inline-flex items-center text-blue-600">{item.icon}</span>
+                      <span className={`mr-3 inline-flex items-center ${iconColorByHref[item.href] || 'text-blue-600'}`}>{item.icon}</span>
                     )}
                     {item.label}
                   </Link>
@@ -100,9 +113,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 className="rounded px-3 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-900 flex items-center"
               >
                 {typeof item.icon === 'string' ? (
-                  <span className="material-symbols-outlined mr-3">{item.icon}</span>
+                  <span className={`material-symbols-outlined mr-3 ${iconColorByHref[item.href] || 'text-blue-600'}`}>{item.icon}</span>
                 ) : (
-                  <span className="mr-3 inline-flex items-center">{item.icon}</span>
+                  <span className={`mr-3 inline-flex items-center ${iconColorByHref[item.href] || 'text-blue-600'}`}>{item.icon}</span>
                 )}
                 {item.label}
               </Link>
