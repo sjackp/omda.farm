@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useVaccines, useCreateVaccine, useUpdateVaccine, useVaccinesDue, useVaccinations, useBulkVaccinations } from '../hooks/vaccines'
+import { useVaccines, useCreateVaccine, useVaccinesDue, useVaccinations, useBulkVaccinations } from '../hooks/vaccines'
 import { useCows } from '../hooks/cows'
 import { useCurrentCycle } from '../hooks/cycles'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
@@ -25,8 +25,8 @@ export default function Vaccines() {
         </div>
       </div>
 
-      {tab === 'catalog' ? <CatalogTab /> : null}
-      {tab === 'due' ? <DueTab /> : null}
+{tab === 'catalog' ? <CatalogTab /> : null}
+{tab === 'due' ? <DueTab /> : null}
     </div>
   )
 }
@@ -34,7 +34,6 @@ export default function Vaccines() {
 function CatalogTab() {
   const { data: vaccines = [], isLoading } = useVaccines()
   const { mutate: createVaccine } = useCreateVaccine()
-  const { mutate: updateVaccine } = useUpdateVaccine()
   const { addToast } = useToast()
 
   const [name, setName] = useState('')
@@ -136,15 +135,7 @@ function DueTab() {
   const [notes, setNotes] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
-  const dueByCow = useMemo(() => {
-    const map = new Map<number, { vaccine_id: number; next_due_date: string }[]>()
-    for (const d of due) {
-      const arr = map.get(d.cow_id) || []
-      arr.push({ vaccine_id: d.vaccine_id, next_due_date: d.next_due_date })
-      map.set(d.cow_id, arr)
-    }
-    return map
-  }, [due])
+  // derived structures can be added later if needed
 
   async function handleBulkApply() {
     const cowIds = Object.entries(selectedCowIds).filter(([, v]) => v).map(([k]) => Number(k))
@@ -332,50 +323,6 @@ function DueTab() {
   )
 }
 
-function RecordsTab() {
-  const { data: vaccinations = [], isLoading } = useVaccinations()
-  const { data: vaccines = [] } = useVaccines()
-  const { data: cows = [] } = useCows()
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">Recent vaccination records</CardTitle>
-      </CardHeader>
-      <CardContent className="p-0">
-        {isLoading ? (
-          <p className="p-3 text-sm text-slate-600">Loading…</p>
-        ) : vaccinations.length === 0 ? (
-          <p className="p-3 text-sm text-slate-600">No records yet.</p>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Cow</TableHead>
-                <TableHead>Vaccine</TableHead>
-                <TableHead>Notes</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {vaccinations.map((ve) => {
-                const cow = cows.find((c) => c.id === ve.cow_id)
-                const vaccine = vaccines.find((v) => v.id === ve.vaccine_id)
-                return (
-                  <TableRow key={ve.id}>
-                    <TableCell>{ve.event_date}</TableCell>
-                    <TableCell>{cow ? cow.external_id : `Cow ${ve.cow_id}`}</TableCell>
-                    <TableCell>{vaccine ? vaccine.name : `Vaccine ${ve.vaccine_id}`}</TableCell>
-                    <TableCell>{ve.notes || ''}</TableCell>
-                  </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
-        )}
-      </CardContent>
-    </Card>
-  )
-}
+// Records view consolidated into Due tab; separate RecordsTab removed to simplify UI
 
 
