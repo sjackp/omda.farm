@@ -5,6 +5,7 @@ import { Layout } from './app/Layout'
 import Dashboard from './pages/Dashboard'
 import Herd from './pages/Herd'
 import Groups from './pages/Groups'
+import Group from './pages/Group'
 import Feed from './pages/Feed'
 import Sales from './pages/Sales'
 import Expenses from './pages/Expenses'
@@ -46,6 +47,7 @@ export default function AppRoutes() {
         <Route path="/" component={Dashboard} />
         <Route path="/herd" component={Herd} />
         <Route path="/groups" component={Groups} />
+        <Route path="/groups/:id">{(params) => <Group id={Number(params.id)} />}</Route>
         <Route path="/feed" component={Feed} />
         <Route path="/vaccines" component={Vaccines} />
         <Route path="/weights" component={Weights} />

@@ -6,6 +6,7 @@ import type { HerdGroup } from '../hooks/groups'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
 import { useToast } from '../providers/ToastProvider'
 import { formatHumanDate } from '../lib/utils'
+import { Link } from 'wouter'
 
 export default function Groups() {
   const { data: current } = useCurrentCycle()
@@ -100,7 +101,11 @@ export default function Groups() {
             return (
               <Card key={g.id}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0">
-                  <CardTitle className="text-base">Group #{g.number}{g.name ? ` — ${g.name}` : ''}</CardTitle>
+                  <CardTitle className="text-base">
+                    <Link href={`/groups/${g.id}`} className="hover:underline">
+                      Group #{g.number}{g.name ? ` — ${g.name}` : ''}
+                    </Link>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-xs text-slate-500 mb-3">{g.active ? 'Active' : 'Inactive'}{g.group_type ? ` • ${g.group_type}` : ''}</div>
