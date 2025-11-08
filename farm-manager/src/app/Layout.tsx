@@ -23,17 +23,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const { theme, toggle } = useTheme()
   const { user, logout } = useAuth()
 
+  // Brand-aligned muted, earthy palette (beige/olive/cream/chalk/taupe/sand)
   const iconColorByHref: Record<string, string> = {
-    '/': 'text-blue-400',
-    '/herd': 'text-emerald-400',
-    '/groups': 'text-violet-400',
-    '/feed': 'text-amber-400',
-    '/vaccines': 'text-rose-400',
-    '/sales': 'text-cyan-400',
-    '/expenses': 'text-orange-400',
-    '/finance': 'text-fuchsia-400',
-    '/cycle': 'text-teal-400',
-    '/settings': 'text-slate-400',
+    '/': 'text-[#6B7A3A]',          // olive
+    '/herd': 'text-[#B89B74]',      // beige
+    '/groups': 'text-[#8B7D6B]',    // taupe
+    '/feed': 'text-[#7A8450]',      // moss/olive
+    '/vaccines': 'text-[#8F8F8F]',  // chalk gray
+    '/sales': 'text-[#C4B79E]',     // sand
+    '/expenses': 'text-[#9E8A6D]',  // clay
+    '/finance': 'text-[#5F6D3A]',   // deep olive
+    '/cycle': 'text-[#DCD4BF]',     // cream
+    '/settings': 'text-[#7A7D7E]',  // slate/chalk
   }
 
   return (
