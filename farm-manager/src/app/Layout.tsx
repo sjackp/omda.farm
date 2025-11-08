@@ -38,7 +38,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f7f3ea] via-[#f5f2eb] to-[#ece8df] dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-[#f7f3ea] via-[#f5f2eb] to-[#ece8df] dark:from-[#1b2a15] dark:via-[#223019] dark:to-[#161f11] text-slate-900 dark:text-slate-100">
       <div className="w-full">
         <div className="flex">
           {/* Sidebar */}

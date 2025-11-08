@@ -57,3 +57,16 @@ body { @apply bg-background text-foreground; }
 
 .page-title { @apply text-2xl font-semibold; }
 .muted { @apply text-slate-500; }
+
+/* Brand-aligned input styling (light and dark) */
+@layer base {
+  input, select, textarea {
+    @apply bg-white text-slate-900 placeholder:text-slate-400 border border-slate-300 rounded;
+  }
+  .dark input, .dark select, .dark textarea {
+    @apply bg-slate-900 text-slate-100 placeholder:text-slate-400 border-slate-700;
+  }
+  input:focus, select:focus, textarea:focus {
+    @apply outline-none ring-2 ring-[#6B7A3A] border-[#6B7A3A];
+  }
+}
