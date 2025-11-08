@@ -24,16 +24,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth()
 
   const iconColorByHref: Record<string, string> = {
-    '/': 'text-blue-600',
-    '/herd': 'text-emerald-600',
-    '/groups': 'text-violet-600',
-    '/feed': 'text-amber-600',
-    '/vaccines': 'text-rose-600',
-    '/sales': 'text-cyan-600',
-    '/expenses': 'text-orange-600',
-    '/finance': 'text-fuchsia-600',
-    '/cycle': 'text-teal-600',
-    '/settings': 'text-slate-600',
+    '/': 'text-blue-400',
+    '/herd': 'text-emerald-400',
+    '/groups': 'text-violet-400',
+    '/feed': 'text-amber-400',
+    '/vaccines': 'text-rose-400',
+    '/sales': 'text-cyan-400',
+    '/expenses': 'text-orange-400',
+    '/finance': 'text-fuchsia-400',
+    '/cycle': 'text-teal-400',
+    '/settings': 'text-slate-400',
   }
 
   return (
