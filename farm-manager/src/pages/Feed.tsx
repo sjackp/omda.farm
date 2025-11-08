@@ -123,7 +123,7 @@ export default function Feed() {
     setCreatingFeed(true)
     setCreateFeedError(null)
     try {
-      const created = await createFoodItem({
+      await createFoodItem({
         name,
         unit: newFeedUnit.trim() || 'kg',
         notes: newFeedNotes.trim() || undefined,
@@ -131,7 +131,6 @@ export default function Feed() {
       setNewFeedName('')
       setNewFeedUnit('kg')
       setNewFeedNotes('')
-      
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to create feed type'
       setCreateFeedError(message)
