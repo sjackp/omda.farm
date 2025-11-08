@@ -14,7 +14,7 @@ function Stat({ title, value, icon }: { title: string; value: string; icon: Reac
     <Card>
       <CardHeader className="flex items-center justify-between pb-2">
         <CardTitle className="text-sm text-slate-600 dark:text-slate-300">{title}</CardTitle>
-        <div className="text-blue-600">{icon}</div>
+        <div className="text-[#6B7A3A]">{icon}</div>
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>
@@ -91,7 +91,7 @@ export default function Dashboard() {
         <Card>
           <CardHeader className="flex items-center justify-between pb-2">
             <CardTitle className="text-sm text-slate-600 dark:text-slate-300">Finance (cycle)</CardTitle>
-            <div className="text-blue-600"><Wallet className="h-5 w-5" /></div>
+            <div className="text-[#6B7A3A]"><Wallet className="h-5 w-5" /></div>
           </CardHeader>
           <CardContent>
             <div className="text-sm space-y-1">
@@ -109,7 +109,7 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="mt-2 text-xs text-right">
-              <Link href="/finance" className="text-blue-600 hover:underline">Open Finance</Link>
+              <Link href="/finance" className="text-[#6B7A3A] hover:underline">Open Finance</Link>
             </div>
           </CardContent>
         </Card>
@@ -127,7 +127,7 @@ export default function Dashboard() {
               <div className="text-sm">
                 {due.length === 0 ? 'Nothing due soon.' : `${due.length} item(s) due soon.`}
               </div>
-              <Link href="/vaccines" className="text-blue-600 text-sm hover:underline">
+              <Link href="/vaccines" className="text-[#6B7A3A] text-sm hover:underline">
                 Review
               </Link>
             </div>

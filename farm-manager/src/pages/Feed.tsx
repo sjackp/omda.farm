@@ -356,7 +356,7 @@ export default function Feed() {
               <div className="flex items-center justify-end gap-2 pt-3">
                 <button className="rounded border px-3 py-1" onClick={() => setShowRestock(false)}>Cancel</button>
                 <button
-                  className="rounded bg-blue-600 text-white px-3 py-1 disabled:opacity-50"
+                  className="rounded bg-[#6B7A3A] hover:bg-[#5F6D3A] text-white px-3 py-1 disabled:opacity-50"
                   disabled={!currentCycle?.id || bulkSubmitting}
                   onClick={handleBulkSupplySubmit}
                 >

@@ -51,7 +51,7 @@ export default function Group({ id }: { id: number }) {
           <h1 className="page-title">Group #{group?.number ?? id}{group?.name ? ` — ${group.name}` : ''}</h1>
           <p className="muted">Overview and details</p>
         </div>
-        <Link href="/groups" className="text-blue-600 hover:underline text-sm">Back to groups</Link>
+        <Link href="/groups" className="text-[#6B7A3A] hover:underline text-sm">Back to groups</Link>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -119,7 +119,7 @@ export default function Group({ id }: { id: number }) {
                   {memberCows.map((c: any) => (
                     <tr key={c.id} className="border-t">
                       <td className="p-2">
-                        <Link href={`/cow/${c.id}`} className="text-blue-600 hover:underline">
+                        <Link href={`/cow/${c.id}`} className="text-[#6B7A3A] hover:underline">
                           {c.external_id}
                         </Link>
                       </td>

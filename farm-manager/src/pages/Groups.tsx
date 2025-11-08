@@ -72,7 +72,7 @@ export default function Groups() {
             <form onSubmit={handleCreate} className="flex flex-wrap gap-2 items-center">
               <input type="number" className="border rounded px-2 py-1 w-28" placeholder="Number" value={String(number)} onChange={(e) => setNumber(e.target.value === '' ? '' : Number(e.target.value))} />
               <input className="border rounded px-2 py-1 w-56" placeholder="Name (optional)" value={name} onChange={(e) => setName(e.target.value)} />
-              <button type="submit" disabled={creating || number === '' || !current?.id} className="rounded bg-blue-600 text-white px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed">Create</button>
+              <button type="submit" disabled={creating || number === '' || !current?.id} className="rounded bg-[#6B7A3A] hover:bg-[#5F6D3A] text-white px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed">Create</button>
             </form>
           </CardContent>
         </Card>
@@ -102,7 +102,7 @@ export default function Groups() {
               <Card key={g.id}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0">
                   <CardTitle className="text-base">
-                    <Link href={`/groups/${g.id}`} className="hover:underline">
+                    <Link href={`/groups/${g.id}`} className="text-[#6B7A3A] hover:underline">
                       Group #{g.number}{g.name ? ` — ${g.name}` : ''}
                     </Link>
                   </CardTitle>
@@ -232,7 +232,7 @@ export default function Groups() {
             <div className="flex items-center justify-end gap-2 pt-3">
               <button className="rounded border px-3 py-1" onClick={() => setFeedModalGroup(null)}>Cancel</button>
               <button
-                className="rounded bg-blue-600 text-white px-3 py-1 disabled:opacity-50"
+                className="rounded bg-[#6B7A3A] hover:bg-[#5F6D3A] text-white px-3 py-1 disabled:opacity-50"
                 disabled={!current?.id}
                 onClick={async () => {
                   if (!current?.id) return

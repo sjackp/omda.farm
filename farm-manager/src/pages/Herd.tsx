@@ -141,7 +141,7 @@ export default function Herd() {
                 </select>
                 <button
                   type="submit"
-                  className="rounded bg-blue-600 text-white px-3 py-2 disabled:opacity-50"
+                  className="rounded bg-[#6B7A3A] hover:bg-[#5F6D3A] text-white px-3 py-2 disabled:opacity-50"
                   disabled={!externalId || !groupId || groupsLoading || isSubmitting}
                 >
                   {isSubmitting ? 'Adding…' : 'Add Cow'}
@@ -198,7 +198,7 @@ export default function Herd() {
                     filtered.map((c) => (
                       <TableRow key={c.id}>
                         <TableCell className="font-medium">
-                          <Link href={`/cow/${c.id}`} className="hover:underline">{c.external_id}</Link>
+                          <Link href={`/cow/${c.id}`} className="text-[#6B7A3A] hover:underline">{c.external_id}</Link>
                         </TableCell>
                         <TableCell>{c.breed ?? '-'}</TableCell>
                         <TableCell>{c.current_group_number ? `Group ${c.current_group_number}` : '-'}</TableCell>

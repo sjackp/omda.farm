@@ -157,7 +157,12 @@ export default function Cow({ id }: { id: number }) {
           <h1 className="page-title">Cow {cow?.external_id ?? `#${id}`}</h1>
           <p className="muted">{cow?.breed ?? ''}</p>
         </div>
-        <Badge variant={cow?.status === 'sold' ? 'default' : 'secondary'} className="capitalize">{cow?.status ?? 'active'}</Badge>
+        <Badge
+          variant={cow?.status === 'sold' ? 'outline' : 'secondary'}
+          className={`capitalize ${cow?.status === 'sold' ? 'bg-[#6B7A3A]/10 text-[#5F6D3A] border-[#5F6D3A]/30' : ''}`}
+        >
+          {cow?.status ?? 'active'}
+        </Badge>
       </div>
 
       {/* Top Stats */}
@@ -233,8 +238,8 @@ export default function Cow({ id }: { id: number }) {
                   <LineChart data={points} margin={{ top: 24, right: 24, left: 16, bottom: 64 }} onMouseMove={handleChartMouseMove as any} onMouseLeave={() => setHoverXY(null)}>
                     <defs>
                       <linearGradient id="lineGrad" x1="0" x2="0" y1="0" y2="1">
-                        <stop offset="0%" stopColor="#2563eb" stopOpacity={0.95} />
-                        <stop offset="100%" stopColor="#2563eb" stopOpacity={0.25} />
+                        <stop offset="0%" stopColor="#6B7A3A" stopOpacity={0.95} />
+                        <stop offset="100%" stopColor="#6B7A3A" stopOpacity={0.25} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" opacity={0.25} />

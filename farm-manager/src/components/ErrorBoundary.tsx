@@ -25,7 +25,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
           <h2 className="text-lg font-semibold">Something went wrong.</h2>
           <p className="mt-2 text-sm text-slate-600">Try reloading the page or contact support if the problem persists.</p>
           <div className="mt-4">
-            <button className="rounded bg-blue-600 text-white px-3 py-1" onClick={() => window.location.reload()}>Reload</button>
+            <button className="rounded bg-[#6B7A3A] hover:bg-[#5F6D3A] text-white px-3 py-1" onClick={() => window.location.reload()}>Reload</button>
           </div>
         </div>
       )

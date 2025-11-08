@@ -39,7 +39,7 @@ export default function Weights() {
         <input className="border rounded px-2 py-1" placeholder="Weight (kg)" value={weight} onChange={(e) => setWeight(e.target.value)} />
         <input type="date" className="border rounded px-2 py-1" value={weighedAt} onChange={(e) => setWeighedAt(e.target.value)} />
         <input className="border rounded px-2 py-1" placeholder="Notes" value={notes} onChange={(e) => setNotes(e.target.value)} />
-        <button className="rounded bg-blue-600 text-white px-3 py-1">Record</button>
+        <button className="rounded bg-[#6B7A3A] hover:bg-[#5F6D3A] text-white px-3 py-1">Record</button>
       </form>
 
       <div className="rounded border">

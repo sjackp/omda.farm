@@ -10,12 +10,12 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'default', ...props }, ref) => {
     const variantClass =
       variant === 'outline'
-        ? 'border border-input bg-background hover:bg-accent hover:text-accent-foreground'
+        ? 'border border-[#6B7A3A] text-[#5F6D3A] hover:bg-[#6B7A3A]/10'
         : variant === 'ghost'
-        ? 'bg-transparent hover:bg-accent hover:text-accent-foreground'
+        ? 'bg-transparent text-[#5F6D3A] hover:bg-[#6B7A3A]/10'
         : variant === 'destructive'
         ? 'bg-red-600 text-white hover:bg-red-700'
-        : 'bg-blue-600 text-white hover:bg-blue-700'
+        : 'bg-[#6B7A3A] text-white hover:bg-[#5F6D3A]'
 
     return (
       <button

@@ -31,7 +31,7 @@ export default function Settings() {
           <input type="number" className="border rounded px-2 py-1" value={defaultGroups} onChange={(e) => setDefaultGroups(Number(e.target.value))} />
         </div>
         <div>
-          <button className="rounded bg-blue-600 text-white px-3 py-1" onClick={save}>Save</button>
+          <button className="rounded bg-[#6B7A3A] hover:bg-[#5F6D3A] text-white px-3 py-1" onClick={save}>Save</button>
         </div>
       </div>
     </div>

@@ -277,7 +277,7 @@ function DueTab() {
           <div className="flex items-center justify-end gap-2">
             <button className="rounded border px-3 py-1" onClick={() => { setSelectedCowIds({}); setSelectedVaccineIds({}); setNotes('') }}>Clear</button>
             <button
-              className="rounded bg-blue-600 text-white px-3 py-1 disabled:opacity-50"
+              className="rounded bg-[#6B7A3A] hover:bg-[#5F6D3A] text-white px-3 py-1 disabled:opacity-50"
               disabled={submitting || Object.values(selectedCowIds).every((v) => !v) || Object.values(selectedVaccineIds).every((v) => !v)}
               onClick={handleBulkApply}
             >
