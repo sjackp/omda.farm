@@ -29,6 +29,7 @@ export default function Sales() {
   const [dateSold, setDateSold] = useState<string>(() => new Date().toISOString().slice(0, 10))
   const [lines, setLines] = useState<SaleLine[]>([newLine()])
   const [submitting, setSubmitting] = useState(false)
+  const [cowQueryByLine, setCowQueryByLine] = useState<Record<string, string>>({})
 
   useEffect(() => {
     apiGet<Array<{ id: number; name: string }>>('/api/buyers').then((rows) => setBuyers(rows || []))
@@ -50,6 +51,26 @@ export default function Sales() {
 
   // helper removed (unused)
 
+  useEffect(() => {
+    setCowQueryByLine((prev) => {
+      const next = { ...prev }
+      let changed = false
+      for (const ln of lines) {
+        if (typeof next[ln.id] === 'undefined') {
+          next[ln.id] = ''
+          changed = true
+        }
+      }
+      for (const id of Object.keys(next)) {
+        if (!lines.find((ln) => ln.id === id)) {
+          delete next[id]
+          changed = true
+        }
+      }
+      return changed ? next : prev
+    })
+  }, [lines])
+
   function onCowChange(id: string, cowId: number | '') {
     setLines((prev) =>
       prev.map((ln) => {
@@ -62,6 +83,41 @@ export default function Sales() {
         return { ...ln, cowId, weight, totalPrice }
       })
     )
+  }
+
+  function onCowQueryChange(id: string, q: string) {
+    setCowQueryByLine((prev) => ({ ...prev, [id]: q }))
+    if (!q) {
+      onCowChange(id, '')
+    }
+  }
+
+  function onCowSelect(id: string, cowId: number, display: string) {
+    setCowQueryByLine((prev) => ({ ...prev, [id]: display }))
+    onCowChange(id, cowId)
+  }
+
+  function onCowInputKeyDown(id: string, e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key !== 'Enter') return
+    e.preventDefault()
+    const line = lines.find((ln) => ln.id === id)
+    if (!line || line.cowId) return
+    const q = (cowQueryByLine[id] ?? '').trim().toLowerCase()
+    if (!q) return
+    const exact = activeCows.find((c: any) => String(c.external_id).toLowerCase() === q)
+    if (exact) {
+      onCowSelect(id, exact.id, exact.external_id)
+      return
+    }
+    const matches = activeCows.filter((c: any) => String(c.external_id).toLowerCase().includes(q))
+    if (matches.length === 1) {
+      onCowSelect(id, matches[0].id, matches[0].external_id)
+    }
+  }
+
+  function clearCowSelection(id: string) {
+    setCowQueryByLine((prev) => ({ ...prev, [id]: '' }))
+    onCowChange(id, '')
   }
 
   function onWeightChange(id: string, weight: string) {
@@ -108,11 +164,18 @@ export default function Sales() {
   }
 
   function addLine() {
-    setLines((prev) => [...prev, newLine()])
+    const line = newLine()
+    setLines((prev) => [...prev, line])
+    setCowQueryByLine((prev) => ({ ...prev, [line.id]: '' }))
   }
 
   function removeLine(id: string) {
     setLines((prev) => (prev.length > 1 ? prev.filter((ln) => ln.id !== id) : prev))
+    setCowQueryByLine((prev) => {
+      const next = { ...prev }
+      delete next[id]
+      return next
+    })
   }
 
   async function handleCreate(e: React.FormEvent) {
@@ -197,7 +260,7 @@ export default function Sales() {
               />
             </div>
 
-            <div className="rounded border overflow-hidden">
+            <div className="rounded border overflow-visible">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -212,16 +275,48 @@ export default function Sales() {
                   {lines.map((ln) => (
                     <TableRow key={ln.id}>
                       <TableCell>
-                        <select
-                          className="border rounded-md px-2 py-1"
-                          value={String(ln.cowId)}
-                          onChange={(e) => onCowChange(ln.id, e.target.value === '' ? '' : Number(e.target.value))}
-                        >
-                          <option value="">Select cow</option>
-                          {activeCows.map((c: any) => (
-                            <option key={c.id} value={c.id}>{c.external_id}</option>
-                          ))}
-                        </select>
+                        <div className="relative">
+                          <input
+                            className="border rounded-md px-2 py-1 w-48"
+                            placeholder="Type cow number"
+                            value={cowQueryByLine[ln.id] ?? ''}
+                            readOnly={Boolean(ln.cowId)}
+                            onKeyDown={(e) => onCowInputKeyDown(ln.id, e)}
+                            onChange={(e) => onCowQueryChange(ln.id, e.target.value)}
+                          />
+                          {ln.cowId ? (
+                            <button
+                              type="button"
+                              className="absolute right-1 top-1 text-xs rounded border px-1 py-0.5"
+                              onClick={() => clearCowSelection(ln.id)}
+                              title="Change cow"
+                            >
+                              Change
+                            </button>
+                          ) : null}
+                          {!ln.cowId && Boolean((cowQueryByLine[ln.id] ?? '').trim()) ? (
+                            (() => {
+                              const q = (cowQueryByLine[ln.id] ?? '').trim().toLowerCase()
+                              const matches = activeCows
+                                .filter((c: any) => String(c.external_id).toLowerCase().includes(q))
+                                .slice(0, 8)
+                              return matches.length > 0 ? (
+                                <div className="absolute z-50 mt-1 w-56 rounded border bg-white dark:bg-slate-950 shadow">
+                                  {matches.map((c: any) => (
+                                    <button
+                                      type="button"
+                                      key={c.id}
+                                      className="w-full text-left px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800"
+                                      onClick={() => onCowSelect(ln.id, c.id, c.external_id)}
+                                    >
+                                      {c.external_id}
+                                    </button>
+                                  ))}
+                                </div>
+                              ) : null
+                            })()
+                          ) : null}
+                        </div>
                       </TableCell>
                       <TableCell className="text-right">
                         <input
