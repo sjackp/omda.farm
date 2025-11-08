@@ -109,10 +109,14 @@ export default function Groups() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-xs text-slate-500 mb-3">{g.active ? 'Active' : 'Inactive'}{g.group_type ? ` • ${g.group_type}` : ''}</div>
-                  <div className="grid grid-cols-1 gap-3">
+                  <div className="grid grid-cols-2 gap-3">
                     <div className="rounded border p-3">
-                      <div className="text-xs text-slate-500">Total Cows</div>
+                      <div className="text-xs text-slate-500">Total Cows (cycle)</div>
                       <div className="text-xl font-semibold">{statsLoading ? '—' : s.totalCows}</div>
+                    </div>
+                    <div className="rounded border p-3">
+                      <div className="text-xs text-slate-500">Current Cows</div>
+                      <div className="text-xl font-semibold">{statsLoading ? '—' : s.currentCows}</div>
                     </div>
                   </div>
                   <div className="mt-3">

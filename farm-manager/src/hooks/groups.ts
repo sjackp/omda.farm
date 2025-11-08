@@ -80,6 +80,7 @@ export function useToggleGroupActive() {
 
 export type GroupStats = {
   totalCows: number
+  currentCows: number
   totalFoodKg: number
 }
 

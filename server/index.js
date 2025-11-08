@@ -134,12 +134,21 @@ app.get('/api/group-stats', async (req, res) => {
     .filter((n) => Number.isFinite(n) && n > 0)
   if (!cycleId || ids.length === 0) return res.json({})
   try {
-    const cowCounts = await query(
-      `select a.group_id, count(*)::bigint as cow_count
+    const currentCounts = await query(
+      `select a.group_id, count(distinct a.cow_id)::bigint as cow_count_current
          from public.cow_group_assignment a
          join public.cow c on c.id = a.cow_id
         where a.end_date is null
           and c.cycle_id = $1
+          and a.group_id = any($2::bigint[])
+        group by a.group_id`,
+      [cycleId, ids]
+    )
+    const totalCounts = await query(
+      `select a.group_id, count(distinct a.cow_id)::bigint as cow_count_total
+         from public.cow_group_assignment a
+         join public.cow c on c.id = a.cow_id
+        where c.cycle_id = $1
           and a.group_id = any($2::bigint[])
         group by a.group_id`,
       [cycleId, ids]
@@ -156,8 +165,10 @@ app.get('/api/group-stats', async (req, res) => {
       [cycleId, ids]
     )
 
-    const cowsByGroup = new Map()
-    for (const r of cowCounts.rows) cowsByGroup.set(Number(r.group_id), Number(r.cow_count || 0))
+    const currentByGroup = new Map()
+    for (const r of currentCounts.rows) currentByGroup.set(Number(r.group_id), Number(r.cow_count_current || 0))
+    const totalByGroup = new Map()
+    for (const r of totalCounts.rows) totalByGroup.set(Number(r.group_id), Number(r.cow_count_total || 0))
 
     const foodByGroup = new Map()
     for (const r of usageSums.rows) foodByGroup.set(Number(r.group_id), Number(r.total_usage || 0))
@@ -165,7 +176,8 @@ app.get('/api/group-stats', async (req, res) => {
     const out = {}
     for (const id of ids) {
       out[id] = {
-        totalCows: cowsByGroup.get(id) || 0,
+        totalCows: totalByGroup.get(id) || 0,
+        currentCows: currentByGroup.get(id) || 0,
         totalFoodKg: foodByGroup.get(id) || 0,
       }
     }
