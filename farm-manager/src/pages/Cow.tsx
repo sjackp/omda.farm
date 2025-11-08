@@ -8,6 +8,7 @@ import { useWeighEvents } from '../hooks/weighs'
 import { apiGet } from '../lib/api'
 import type { Cow as CowType } from '../hooks/cows'
 import { useSales } from '../hooks/sales'
+import type { Sale as SaleType } from '../hooks/sales'
 import { useCurrentCycle } from '../hooks/cycles'
 import { formatHumanDate, formatMonthDay } from '../lib/utils'
 
@@ -18,7 +19,28 @@ export default function Cow({ id }: { id: number }) {
 
   const { data: events = [], isLoading: isLoadingEvents } = useWeighEvents(id)
   const { data: sales = [] } = useSales(useCurrentCycle().data?.id)
-  const sale = useMemo(() => sales.find((s) => s.cow_id === id), [sales, id])
+  const saleFromCycle = useMemo(() => sales.find((s) => Number(s.cow_id) === Number(id)) ?? null, [sales, id])
+  const [saleDirect, setSaleDirect] = useState<SaleType | null>(null)
+  // Fallback: if current cycle isn't set or sale not in that cycle list, fetch by cow_id
+  useEffect(() => {
+    let mounted = true
+    async function fetchDirect() {
+      if (saleFromCycle) {
+        if (mounted) setSaleDirect(null)
+        return
+      }
+      try {
+        const rows = await apiGet<SaleType[]>(`/api/sales?cow_id=${id}`)
+        if (!mounted) return
+        setSaleDirect(rows?.[0] ?? null)
+      } catch {
+        if (mounted) setSaleDirect(null)
+      }
+    }
+    fetchDirect()
+    return () => { mounted = false }
+  }, [id, saleFromCycle])
+  const sale = saleFromCycle ?? saleDirect
 
   const current = useCurrentCycle()
   useEffect(() => {
@@ -81,6 +103,7 @@ export default function Cow({ id }: { id: number }) {
     return Math.max(1, Math.round((b - a) / (1000 * 60 * 60 * 24)))
   }, [cow?.purchase_date, active])
   const avgDailyGain = gainToDate != null && daysOnFarm ? (gainToDate / daysOnFarm) : null
+  const startDate = points.length ? points[0].date : null
 
   const [hoverXY, setHoverXY] = useState<{ x: number; y: number } | null>(null)
 
@@ -117,11 +140,19 @@ export default function Cow({ id }: { id: number }) {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-base flex items-center gap-2"><WeightIcon className="w-4 h-4"/> Current</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-base flex items-center gap-2"><WeightIcon className="w-4 h-4"/> Weight</CardTitle></CardHeader>
           <CardContent className="text-sm">
             <div className="flex items-center justify-between">
               <span>{active ? formatHumanDate(active.date) : '—'}</span>
               <span className="font-medium">{active ? `${active.weight} kg` : '—'}</span>
+            </div>
+            <div className="mt-2 flex items-center justify-between text-xs opacity-80">
+              <span>Start</span>
+              <span>{startWeight != null ? `${startWeight} kg` : '—'}{startDate ? ` • ${formatHumanDate(startDate)}` : ''}</span>
+            </div>
+            <div className="mt-1 flex items-center justify-between text-xs opacity-80">
+              <span>Gain to date</span>
+              <span>{gainToDate != null ? `${gainToDate.toFixed(1)} kg` : '—'}</span>
             </div>
             <div className="my-3 h-px bg-slate-200 dark:bg-slate-800" />
             <div className="flex items-center justify-between text-xs opacity-80"><span>Days on farm</span><span>{daysOnFarm ?? '—'}</span></div>
@@ -176,7 +207,7 @@ export default function Cow({ id }: { id: number }) {
                         const isActive = i === selectedIndex
                         return (
                           // eslint-disable-next-line jsx-a11y/no-static-element-interactions
-                          <g onClick={() => setSelectedIndex(i)} style={{ cursor: 'pointer' }}>
+                          <g key={`dot-${i}`} onClick={() => setSelectedIndex(i)} style={{ cursor: 'pointer' }}>
                             <circle cx={cx} cy={cy} r={isActive ? 7 : 4} fill={isActive ? '#2563eb' : '#94a3b8'} />
                             {isActive ? (<circle cx={cx} cy={cy} r={12} fill="none" stroke="#2563eb" strokeOpacity={0.25} strokeWidth={8} />) : null}
                           </g>
@@ -213,14 +244,6 @@ export default function Cow({ id }: { id: number }) {
 
       {/* Bottom meta */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-        <Card>
-          <CardHeader><CardTitle className="text-base">Start Weight</CardTitle></CardHeader>
-          <CardContent><div className="font-medium">{startWeight != null ? `${startWeight} kg` : '—'}</div></CardContent>
-        </Card>
-        <Card>
-          <CardHeader><CardTitle className="text-base">Gain to Date</CardTitle></CardHeader>
-          <CardContent><div className="font-medium">{gainToDate != null ? `${gainToDate.toFixed(1)} kg` : '—'}</div></CardContent>
-        </Card>
         <Card>
           <CardHeader><CardTitle className="text-base">Notes</CardTitle></CardHeader>
           <CardContent><div className="opacity-90">{cow?.notes ?? '—'}</div></CardContent>
