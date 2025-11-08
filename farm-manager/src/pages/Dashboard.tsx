@@ -3,10 +3,11 @@ import { Users, Wheat, Receipt, Wallet } from 'lucide-react'
 import { Link } from 'wouter'
 import { useVaccinesDue } from '../hooks/vaccines'
 import { useCows } from '../hooks/cows'
-import { useFeedOnHand } from '../hooks/feed'
+import { useFeedOnHand, useFeedMovements, useFoodItems } from '../hooks/feed'
 import { useExpenses } from '../hooks/expenses'
 import { useSales } from '../hooks/sales'
 import { useMemo } from 'react'
+import { formatHumanDate } from '../lib/utils'
 
 function Stat({ title, value, icon }: { title: string; value: string; icon: React.ReactNode }) {
   return (
@@ -27,6 +28,8 @@ export default function Dashboard() {
   const { data: due = [], isLoading: dueLoading } = useVaccinesDue({ within_days: 7 })
   const { data: cows = [], isLoading: cowsLoading } = useCows()
   const { data: onHand = [], isLoading: onHandLoading } = useFeedOnHand()
+  const { data: movements = [], isLoading: movLoading } = useFeedMovements()
+  const { data: items = [], isLoading: itemsLoading } = useFoodItems()
   const { data: expenses = [], isLoading: exLoading } = useExpenses()
   const { data: sales = [], isLoading: salesLoading } = useSales()
 
@@ -52,6 +55,37 @@ export default function Dashboard() {
   }, [cows, onHand, expenses, sales])
 
   const loading = cowsLoading || onHandLoading || exLoading || salesLoading
+
+  const nameById = useMemo(() => {
+    const map: Record<number, string> = {}
+    for (const it of (items || [])) map[Number(it.id)] = it.name
+    return map
+  }, [items])
+
+  const recent = useMemo(() => {
+    // movements already ordered desc by API, just take top 8
+    return (movements || []).slice(0, 8)
+  }, [movements])
+
+  const onHandByItem = useMemo(() => {
+    const map = new Map<number, number>()
+    for (const row of (onHand as any[])) {
+      map.set(Number(row.food_item_id), Number(row.on_hand_kg))
+    }
+    return map
+  }, [onHand])
+
+  const onHandSummary = useMemo(() => {
+    // Top 6 items by absolute qty for quick glance
+    const rows = (items || []).map((it: any) => {
+      const qty = onHandByItem.get(Number(it.id)) ?? 0
+      return { id: Number(it.id), name: it.name, qty }
+    })
+    return rows
+      .sort((a, b) => Math.abs(b.qty) - Math.abs(a.qty))
+      .slice(0, 6)
+  }, [items, onHandByItem])
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -94,7 +128,31 @@ export default function Dashboard() {
             <CardTitle className="text-base">Recent Activity</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm text-slate-500">No recent records. Start by adding cows, feed, or expenses.</div>
+            {movLoading ? (
+              <div className="text-sm text-slate-500">Loading…</div>
+            ) : recent.length === 0 ? (
+              <div className="text-sm text-slate-500">No recent records. Start by adding cows, feed, or expenses.</div>
+            ) : (
+              <div className="space-y-2">
+                {recent.map((m: any) => {
+                  const type = String(m.movement_type).toUpperCase()
+                  const name = nameById[Number(m.food_item_id)] ?? `Item ${m.food_item_id}`
+                  return (
+                    <div key={m.id} className="flex items-center justify-between text-sm">
+                      <div className="truncate">
+                        <span className="font-medium">{name}</span>
+                        <span className="mx-2 text-slate-500">·</span>
+                        <span className="uppercase">{type}</span>
+                      </div>
+                      <div className="ml-2 flex items-center gap-3 text-xs text-slate-600">
+                        <span>{Number(m.qty_kg)} kg</span>
+                        <span>{formatHumanDate(m.movement_date)}</span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -103,7 +161,20 @@ export default function Dashboard() {
             <CardTitle className="text-base">Inventory On-hand</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm text-slate-500">No inventory yet. Receive supply to populate this section.</div>
+            {(onHandLoading || itemsLoading) ? (
+              <div className="text-sm text-slate-500">Loading…</div>
+            ) : onHandSummary.length === 0 ? (
+              <div className="text-sm text-slate-500">No inventory yet. Receive supply to populate this section.</div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {onHandSummary.map((row) => (
+                  <div key={row.id} className="flex items-center justify-between rounded border p-2 text-sm">
+                    <div className="truncate">{row.name}</div>
+                    <div className="ml-2 text-slate-600">{row.qty.toLocaleString()} kg</div>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
