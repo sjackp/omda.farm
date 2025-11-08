@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import Button from '../components/ui/button'
 import { formatHumanDate } from '../lib/utils'
 import { Badge } from '../components/ui/badge'
+import ScrollablePanel from '../components/ui/ScrollablePanel'
 
 export default function Expenses() {
   const { data: categories = [], isLoading: catsLoading, refetch: refetchCats } = useExpenseCategories()
@@ -186,39 +187,41 @@ export default function Expenses() {
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
+          <ScrollablePanel maxHeight={400}>
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center text-slate-500">Loading…</TableCell>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead className="text-right">Amount</TableHead>
                 </TableRow>
-              ) : filteredExpenses.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center text-slate-500">No expenses yet</TableCell>
-                </TableRow>
-              ) : (
-                filteredExpenses.map((ex: any) => {
-                  const cat = (categories || []).find((c) => c.id === ex.expense_category_id)
-                  return (
-                    <TableRow key={ex.id}>
-                      <TableCell>{formatHumanDate(ex.expense_date)}</TableCell>
-                      <TableCell>{cat?.name ?? ex.expense_category_id}</TableCell>
-                      <TableCell>{ex.description || ''}</TableCell>
-                      <TableCell className="text-right">{ex.currency_code} {Number(ex.amount).toLocaleString()}</TableCell>
-                    </TableRow>
-                  )
-                })
-              )}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center text-slate-500">Loading…</TableCell>
+                  </TableRow>
+                ) : filteredExpenses.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center text-slate-500">No expenses yet</TableCell>
+                  </TableRow>
+                ) : (
+                  filteredExpenses.map((ex: any) => {
+                    const cat = (categories || []).find((c) => c.id === ex.expense_category_id)
+                    return (
+                      <TableRow key={ex.id}>
+                        <TableCell>{formatHumanDate(ex.expense_date)}</TableCell>
+                        <TableCell>{cat?.name ?? ex.expense_category_id}</TableCell>
+                        <TableCell>{ex.description || ''}</TableCell>
+                        <TableCell className="text-right">{ex.currency_code} {Number(ex.amount).toLocaleString()}</TableCell>
+                      </TableRow>
+                    )
+                  })
+                )}
+              </TableBody>
+            </Table>
+          </ScrollablePanel>
         </CardContent>
       </Card>
     </div>

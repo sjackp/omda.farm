@@ -4,6 +4,7 @@ import { useCows } from '../hooks/cows'
 import { useCurrentCycle } from '../hooks/cycles'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table'
+import ScrollablePanel from '../components/ui/ScrollablePanel'
 import Button from '../components/ui/button'
 import { useToast } from '../providers/ToastProvider'
 
@@ -92,24 +93,26 @@ function CatalogTab() {
           ) : vaccines.length === 0 ? (
             <p className="p-3 text-sm text-slate-600">No vaccines yet.</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Every (days)</TableHead>
-                  <TableHead>Notes</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {vaccines.map((v) => (
-                  <TableRow key={v.id}>
-                    <TableCell className="font-medium">{v.name}</TableCell>
-                    <TableCell>{v.recurrence_days}</TableCell>
-                    <TableCell>{v.notes || ''}</TableCell>
+            <ScrollablePanel maxHeight={360}>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Every (days)</TableHead>
+                    <TableHead>Notes</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {vaccines.map((v) => (
+                    <TableRow key={v.id}>
+                      <TableCell className="font-medium">{v.name}</TableCell>
+                      <TableCell>{v.recurrence_days}</TableCell>
+                      <TableCell>{v.notes || ''}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </ScrollablePanel>
           )}
         </CardContent>
       </Card>
@@ -172,28 +175,30 @@ function DueTab() {
           ) : due.length === 0 ? (
             <p className="p-3 text-sm text-slate-600">Nothing due in the selected window.</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Cow</TableHead>
-                  <TableHead>Vaccine</TableHead>
-                  <TableHead>Next due</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {due.map((d) => {
-                  const cow = cows.find((c) => c.id === d.cow_id)
-                  const vaccine = vaccines.find((v) => v.id === d.vaccine_id)
-                  return (
-                    <TableRow key={`${d.cow_id}-${d.vaccine_id}`}>
-                      <TableCell>{cow ? cow.external_id : `Cow ${d.cow_id}`}</TableCell>
-                      <TableCell>{vaccine ? vaccine.name : `Vaccine ${d.vaccine_id}`}</TableCell>
-                      <TableCell>{d.next_due_date}</TableCell>
-                    </TableRow>
-                  )
-                })}
-              </TableBody>
-            </Table>
+            <ScrollablePanel maxHeight={360}>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Cow</TableHead>
+                    <TableHead>Vaccine</TableHead>
+                    <TableHead>Next due</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {due.map((d) => {
+                    const cow = cows.find((c) => c.id === d.cow_id)
+                    const vaccine = vaccines.find((v) => v.id === d.vaccine_id)
+                    return (
+                      <TableRow key={`${d.cow_id}-${d.vaccine_id}`}>
+                        <TableCell>{cow ? cow.external_id : `Cow ${d.cow_id}`}</TableCell>
+                        <TableCell>{vaccine ? vaccine.name : `Vaccine ${d.vaccine_id}`}</TableCell>
+                        <TableCell>{d.next_due_date}</TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+              </Table>
+            </ScrollablePanel>
           )}
         </CardContent>
       </Card>
@@ -292,30 +297,32 @@ function DueTab() {
           ) : vaccinations.length === 0 ? (
             <p className="p-3 text-sm text-slate-600">No records yet.</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Cow</TableHead>
-                  <TableHead>Vaccine</TableHead>
-                  <TableHead>Notes</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {vaccinations.map((ve) => {
-                  const cow = cows.find((c) => c.id === ve.cow_id)
-                  const vaccine = vaccines.find((v) => v.id === ve.vaccine_id)
-                  return (
-                    <TableRow key={ve.id}>
-                      <TableCell>{ve.event_date}</TableCell>
-                      <TableCell>{cow ? cow.external_id : `Cow ${ve.cow_id}`}</TableCell>
-                      <TableCell>{vaccine ? vaccine.name : `Vaccine ${ve.vaccine_id}`}</TableCell>
-                      <TableCell>{ve.notes || ''}</TableCell>
-                    </TableRow>
-                  )
-                })}
-              </TableBody>
-            </Table>
+            <ScrollablePanel maxHeight={360}>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Cow</TableHead>
+                    <TableHead>Vaccine</TableHead>
+                    <TableHead>Notes</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {vaccinations.map((ve) => {
+                    const cow = cows.find((c) => c.id === ve.cow_id)
+                    const vaccine = vaccines.find((v) => v.id === ve.vaccine_id)
+                    return (
+                      <TableRow key={ve.id}>
+                        <TableCell>{ve.event_date}</TableCell>
+                        <TableCell>{cow ? cow.external_id : `Cow ${ve.cow_id}`}</TableCell>
+                        <TableCell>{vaccine ? vaccine.name : `Vaccine ${ve.vaccine_id}`}</TableCell>
+                        <TableCell>{ve.notes || ''}</TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+              </Table>
+            </ScrollablePanel>
           )}
         </CardContent>
       </Card>

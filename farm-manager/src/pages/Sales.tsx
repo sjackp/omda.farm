@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table'
 import Button from '../components/ui/button'
 import { formatHumanDate } from '../lib/utils'
+import ScrollablePanel from '../components/ui/ScrollablePanel'
 
 type SaleLine = {
   id: string
@@ -370,43 +371,45 @@ export default function Sales() {
           <CardTitle className="text-base">Recent Sales</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Buyer</TableHead>
-                <TableHead>Cow</TableHead>
-                <TableHead className="text-right">Weight (kg)</TableHead>
-                <TableHead className="text-right">Price/kg</TableHead>
-                <TableHead className="text-right">Total</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
+          <ScrollablePanel maxHeight={400}>
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-slate-500">Loading…</TableCell>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Buyer</TableHead>
+                  <TableHead>Cow</TableHead>
+                  <TableHead className="text-right">Weight (kg)</TableHead>
+                  <TableHead className="text-right">Price/kg</TableHead>
+                  <TableHead className="text-right">Total</TableHead>
                 </TableRow>
-              ) : sales.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center text-slate-500">No sales yet</TableCell>
-                </TableRow>
-              ) : (
-                sales.map((s: any) => {
-                  const total = Number(s.price_per_kg) * Number(s.weight_at_sale_kg)
-                  return (
-                    <TableRow key={s.id}>
-                      <TableCell>{formatHumanDate(s.date_sold)}</TableCell>
-                      <TableCell>{s.buyer?.name ?? s.buyer_id}</TableCell>
-                      <TableCell>{s.cow?.external_id ?? s.cow_id}</TableCell>
-                      <TableCell className="text-right">{Number(s.weight_at_sale_kg).toLocaleString()}</TableCell>
-                      <TableCell className="text-right">{s.currency_code} {Number(s.price_per_kg).toLocaleString()}</TableCell>
-                      <TableCell className="text-right">{s.currency_code} {total.toLocaleString()}</TableCell>
-                    </TableRow>
-                  )
-                })
-              )}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center text-slate-500">Loading…</TableCell>
+                  </TableRow>
+                ) : sales.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center text-slate-500">No sales yet</TableCell>
+                  </TableRow>
+                ) : (
+                  sales.map((s: any) => {
+                    const total = Number(s.price_per_kg) * Number(s.weight_at_sale_kg)
+                    return (
+                      <TableRow key={s.id}>
+                        <TableCell>{formatHumanDate(s.date_sold)}</TableCell>
+                        <TableCell>{s.buyer?.name ?? s.buyer_id}</TableCell>
+                        <TableCell>{s.cow?.external_id ?? s.cow_id}</TableCell>
+                        <TableCell className="text-right">{Number(s.weight_at_sale_kg).toLocaleString()}</TableCell>
+                        <TableCell className="text-right">{s.currency_code} {Number(s.price_per_kg).toLocaleString()}</TableCell>
+                        <TableCell className="text-right">{s.currency_code} {total.toLocaleString()}</TableCell>
+                      </TableRow>
+                    )
+                  })
+                )}
+              </TableBody>
+            </Table>
+          </ScrollablePanel>
         </CardContent>
       </Card>
     </div>

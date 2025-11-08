@@ -4,6 +4,7 @@ import { useCurrentCycle } from '../hooks/cycles'
 import Button from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table'
+import ScrollablePanel from '../components/ui/ScrollablePanel'
 import { Badge } from '../components/ui/badge'
 import { useToast } from '../providers/ToastProvider'
 import { formatHumanDate } from '../lib/utils'
@@ -395,42 +396,44 @@ export default function Feed() {
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Feed</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead className="text-right">Qty (kg)</TableHead>
-                <TableHead>Target</TableHead>
-                <TableHead>Notes</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {movLoading && (
+          <ScrollablePanel maxHeight={400}>
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-slate-500">Loading…</TableCell>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Feed</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead className="text-right">Qty (kg)</TableHead>
+                  <TableHead>Target</TableHead>
+                  <TableHead>Notes</TableHead>
                 </TableRow>
-              )}
-              {!movLoading && filteredMovements.map((m: any) => {
-                const type = String(m.movement_type).toUpperCase()
-                const date = formatHumanDate(m.movement_date)
-                const target = type === 'USAGE' && m.usage_target_type === 'group' && m.group_id
-                  ? `Group ${m.group_id}`
-                  : ''
-                return (
-                  <TableRow key={m.id}>
-                    <TableCell>{date}</TableCell>
-                    <TableCell>{nameById[Number(m.food_item_id)] ?? `Item ${m.food_item_id}`}</TableCell>
-                    <TableCell>{type}</TableCell>
-                    <TableCell className="text-right">{Number(m.qty_kg).toLocaleString()}</TableCell>
-                    <TableCell>{target}</TableCell>
-                    <TableCell>{m.notes || ''}</TableCell>
+              </TableHeader>
+              <TableBody>
+                {movLoading && (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center text-slate-500">Loading…</TableCell>
                   </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
+                )}
+                {!movLoading && filteredMovements.map((m: any) => {
+                  const type = String(m.movement_type).toUpperCase()
+                  const date = formatHumanDate(m.movement_date)
+                  const target = type === 'USAGE' && m.usage_target_type === 'group' && m.group_id
+                    ? `Group ${m.group_id}`
+                    : ''
+                  return (
+                    <TableRow key={m.id}>
+                      <TableCell>{date}</TableCell>
+                      <TableCell>{nameById[Number(m.food_item_id)] ?? `Item ${m.food_item_id}`}</TableCell>
+                      <TableCell>{type}</TableCell>
+                      <TableCell className="text-right">{Number(m.qty_kg).toLocaleString()}</TableCell>
+                      <TableCell>{target}</TableCell>
+                      <TableCell>{m.notes || ''}</TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
+          </ScrollablePanel>
         </CardContent>
       </Card>
     </div>
