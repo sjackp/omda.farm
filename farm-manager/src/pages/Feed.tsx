@@ -15,6 +15,9 @@ export default function Feed() {
   const supply = useRecordSupply()
   const { mutate: createFoodItem } = useCreateFoodItem()
 
+  const [showCreateType, setShowCreateType] = useState(false)
+  const [showRestock, setShowRestock] = useState(false)
+
   const [supplyFoodId, setSupplyFoodId] = useState<number | ''>('')
   const [supplyQty, setSupplyQty] = useState('')
   const [unitCost, setUnitCost] = useState('')
@@ -104,6 +107,14 @@ export default function Feed() {
           <h1 className="text-xl font-semibold">Feed</h1>
           <p className="text-sm text-slate-600">Track inventory and restock supplies.</p>
         </div>
+        <div className="flex items-center gap-2">
+          <button className="rounded border px-3 py-1" onClick={() => setShowCreateType((v) => !v)}>
+            {showCreateType ? 'Close' : 'Add Feed Type'}
+          </button>
+          <button className="rounded border px-3 py-1" onClick={() => setShowRestock((v) => !v)}>
+            {showRestock ? 'Close' : 'Restock'}
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -144,104 +155,108 @@ export default function Feed() {
         </Card>
 
         <div className="grid gap-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Feed types</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <form onSubmit={handleCreateFeedType} className="grid grid-cols-1 gap-3">
-                <input
-                  className="border rounded-md px-3 py-2"
-                  placeholder="Name"
-                  value={newFeedName}
-                  onChange={(e) => setNewFeedName(e.target.value)}
-                />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {showCreateType ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Feed types</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <form onSubmit={handleCreateFeedType} className="grid grid-cols-1 gap-3">
                   <input
                     className="border rounded-md px-3 py-2"
-                    placeholder="Unit"
-                    value={newFeedUnit}
-                    onChange={(e) => setNewFeedUnit(e.target.value)}
+                    placeholder="Name"
+                    value={newFeedName}
+                    onChange={(e) => setNewFeedName(e.target.value)}
                   />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <input
+                      className="border rounded-md px-3 py-2"
+                      placeholder="Unit"
+                      value={newFeedUnit}
+                      onChange={(e) => setNewFeedUnit(e.target.value)}
+                    />
+                    <input
+                      className="border rounded-md px-3 py-2"
+                      placeholder="Notes (optional)"
+                      value={newFeedNotes}
+                      onChange={(e) => setNewFeedNotes(e.target.value)}
+                    />
+                  </div>
+                  {createFeedError && <p className="text-sm text-red-600">{createFeedError}</p>}
+                  <div className="flex justify-end">
+                    <Button type="submit" disabled={creatingFeed}>
+                      {creatingFeed ? 'Saving…' : 'Add Feed Type'}
+                    </Button>
+                  </div>
+                </form>
+                <div>
+                  <p className="text-xs text-slate-500 mb-2">Existing feed types</p>
+                  {itemsLoading ? (
+                    <p className="text-sm text-slate-500">Loading…</p>
+                  ) : (items || []).length === 0 ? (
+                    <p className="text-sm text-slate-500">No feed types yet.</p>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {(items || []).map((it) => (
+                        <Badge key={it.id} variant="outline">
+                          {it.name}
+                          {it.unit ? ` (${it.unit})` : ''}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          ) : null}
+          {showRestock ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Restock (Supply)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSupplySubmit} className="grid grid-cols-1 gap-3">
+                  <select
+                    className="border rounded-md px-3 py-2"
+                    value={String(supplyFoodId)}
+                    onChange={(e) => setSupplyFoodId(e.target.value === '' ? '' : Number(e.target.value))}
+                  >
+                    <option value="">Select feed</option>
+                    {(items || []).map((f) => (
+                      <option key={f.id} value={f.id}>{f.name}</option>
+                    ))}
+                  </select>
+                  <div className="grid grid-cols-2 gap-3">
+                    <input
+                      className="border rounded-md px-3 py-2"
+                      placeholder="Qty (kg)"
+                      inputMode="decimal"
+                      value={supplyQty}
+                      onChange={(e) => setSupplyQty(e.target.value)}
+                    />
+                    <input
+                      className="border rounded-md px-3 py-2"
+                      placeholder="Unit cost (optional)"
+                      inputMode="decimal"
+                      value={unitCost}
+                      onChange={(e) => setUnitCost(e.target.value)}
+                    />
+                  </div>
                   <input
                     className="border rounded-md px-3 py-2"
                     placeholder="Notes (optional)"
-                    value={newFeedNotes}
-                    onChange={(e) => setNewFeedNotes(e.target.value)}
+                    value={supplyNotes}
+                    onChange={(e) => setSupplyNotes(e.target.value)}
                   />
-                </div>
-                {createFeedError && <p className="text-sm text-red-600">{createFeedError}</p>}
-                <div className="flex justify-end">
-                  <Button type="submit" disabled={creatingFeed}>
-                    {creatingFeed ? 'Saving…' : 'Add Feed Type'}
-                  </Button>
-                </div>
-              </form>
-              <div>
-                <p className="text-xs text-slate-500 mb-2">Existing feed types</p>
-                {itemsLoading ? (
-                  <p className="text-sm text-slate-500">Loading…</p>
-                ) : (items || []).length === 0 ? (
-                  <p className="text-sm text-slate-500">No feed types yet.</p>
-                ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {(items || []).map((it) => (
-                      <Badge key={it.id} variant="outline">
-                        {it.name}
-                        {it.unit ? ` (${it.unit})` : ''}
-                      </Badge>
-                    ))}
+                  <div className="flex justify-end">
+                    <Button disabled={!currentCycle?.id || !supplyFoodId || !supplyQty || submittingSupply}>
+                      {submittingSupply ? 'Saving…' : 'Record Supply'}
+                    </Button>
                   </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Restock (Supply)</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSupplySubmit} className="grid grid-cols-1 gap-3">
-                <select
-                  className="border rounded-md px-3 py-2"
-                  value={String(supplyFoodId)}
-                  onChange={(e) => setSupplyFoodId(e.target.value === '' ? '' : Number(e.target.value))}
-                >
-                  <option value="">Select feed</option>
-                  {(items || []).map((f) => (
-                    <option key={f.id} value={f.id}>{f.name}</option>
-                  ))}
-                </select>
-                <div className="grid grid-cols-2 gap-3">
-                  <input
-                    className="border rounded-md px-3 py-2"
-                    placeholder="Qty (kg)"
-                    inputMode="decimal"
-                    value={supplyQty}
-                    onChange={(e) => setSupplyQty(e.target.value)}
-                  />
-                  <input
-                    className="border rounded-md px-3 py-2"
-                    placeholder="Unit cost (optional)"
-                    inputMode="decimal"
-                    value={unitCost}
-                    onChange={(e) => setUnitCost(e.target.value)}
-                  />
-                </div>
-                <input
-                  className="border rounded-md px-3 py-2"
-                  placeholder="Notes (optional)"
-                  value={supplyNotes}
-                  onChange={(e) => setSupplyNotes(e.target.value)}
-                />
-                <div className="flex justify-end">
-                  <Button disabled={!currentCycle?.id || !supplyFoodId || !supplyQty || submittingSupply}>
-                    {submittingSupply ? 'Saving…' : 'Record Supply'}
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
+                </form>
+              </CardContent>
+            </Card>
+          ) : null}
 
           
         </div>

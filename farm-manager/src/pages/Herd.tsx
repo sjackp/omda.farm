@@ -15,6 +15,7 @@ export default function Herd() {
   const recorder = useRecordWeighEvent()
   const current = useCurrentCycle()
 
+  const [showCreate, setShowCreate] = useState(false)
   const [externalId, setExternalId] = useState('')
   const [breed, setBreed] = useState('')
   const [query, setQuery] = useState('')
@@ -74,75 +75,82 @@ export default function Herd() {
           <h1 className="page-title">Herd</h1>
           <p className="muted">Manage animals in the current cycle</p>
         </div>
-        <button className="rounded border px-3 py-1" onClick={() => refetch()}>Refresh</button>
+        <div className="flex items-center gap-2">
+          <button className="rounded border px-3 py-1" onClick={() => refetch()}>Refresh</button>
+          <button className="rounded border px-3 py-1" onClick={() => setShowCreate((v) => !v)}>
+            {showCreate ? 'Close' : 'Add Cow'}
+          </button>
+        </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle className="text-base">Add Cow</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleCreate} className="flex flex-col gap-2">
-              <input className="border rounded px-2 py-1" placeholder="External ID" value={externalId} onChange={(e) => setExternalId(e.target.value)} />
-              <input className="border rounded px-2 py-1" placeholder="Breed (optional)" value={breed} onChange={(e) => setBreed(e.target.value)} />
-              <input
-                className="border rounded px-2 py-1"
-                type="number"
-                step="0.01"
-                placeholder="Initial weight (kg, optional)"
-                value={weight}
-                onChange={(e) => setWeight(e.target.value)}
-              />
-              <div className="grid grid-cols-2 gap-2">
+        {showCreate ? (
+          <Card className="lg:col-span-1">
+            <CardHeader>
+              <CardTitle className="text-base">Add Cow</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleCreate} className="flex flex-col gap-2">
+                <input className="border rounded px-2 py-1" placeholder="External ID" value={externalId} onChange={(e) => setExternalId(e.target.value)} />
+                <input className="border rounded px-2 py-1" placeholder="Breed (optional)" value={breed} onChange={(e) => setBreed(e.target.value)} />
                 <input
                   className="border rounded px-2 py-1"
-                  placeholder="Purchase price"
                   type="number"
                   step="0.01"
-                  value={purchasePrice}
-                  onChange={(e) => setPurchasePrice(e.target.value)}
+                  placeholder="Initial weight (kg, optional)"
+                  value={weight}
+                  onChange={(e) => setWeight(e.target.value)}
                 />
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    className="border rounded px-2 py-1"
+                    placeholder="Purchase price"
+                    type="number"
+                    step="0.01"
+                    value={purchasePrice}
+                    onChange={(e) => setPurchasePrice(e.target.value)}
+                  />
+                  <input
+                    className="border rounded px-2 py-1"
+                    placeholder="Currency"
+                    value={purchaseCurrency}
+                    onChange={(e) => setPurchaseCurrency(e.target.value)}
+                  />
+                </div>
                 <input
                   className="border rounded px-2 py-1"
-                  placeholder="Currency"
-                  value={purchaseCurrency}
-                  onChange={(e) => setPurchaseCurrency(e.target.value)}
+                  type="date"
+                  placeholder="Purchase date"
+                  value={purchaseDate}
+                  onChange={(e) => setPurchaseDate(e.target.value)}
                 />
-              </div>
-              <input
-                className="border rounded px-2 py-1"
-                type="date"
-                placeholder="Purchase date"
-                value={purchaseDate}
-                onChange={(e) => setPurchaseDate(e.target.value)}
-              />
-              <select
-                className="border rounded px-2 py-1"
-                value={groupId}
-                onChange={(e) => setGroupId(e.target.value ? Number(e.target.value) : '')}
-              >
-                <option value="">Select group</option>
-                {groups
-                  .filter((g) => g.active)
-                  .map((g) => (
-                    <option key={g.id} value={g.id}>
-                      Group {g.number}{g.name ? ` — ${g.name}` : ''}
-                    </option>
-                  ))}
-              </select>
-              <button
-                type="submit"
-                className="rounded bg-blue-600 text-white px-3 py-2 disabled:opacity-50"
-                disabled={!externalId || !groupId || groupsLoading || isSubmitting}
-              >
-                {isSubmitting ? 'Adding…' : 'Add Cow'}
-              </button>
-            </form>
-          </CardContent>
-        </Card>
+                <select
+                  className="border rounded px-2 py-1"
+                  value={groupId}
+                  onChange={(e) => setGroupId(e.target.value ? Number(e.target.value) : '')}
+                >
+                  <option value="">Select group</option>
+                  {groups
+                    .filter((g) => g.active)
+                    .map((g) => (
+                      <option key={g.id} value={g.id}>
+                        Group {g.number}{g.name ? ` — ${g.name}` : ''}
+                      </option>
+                    ))}
+                </select>
+                <button
+                  type="submit"
+                  className="rounded bg-blue-600 text-white px-3 py-2 disabled:opacity-50"
+                  disabled={!externalId || !groupId || groupsLoading || isSubmitting}
+                >
+                  {isSubmitting ? 'Adding…' : 'Add Cow'}
+                </button>
+              </form>
+            </CardContent>
+          </Card>
+        ) : null}
 
-        <Card className="lg:col-span-2">
+        <Card className={showCreate ? 'lg:col-span-2' : 'lg:col-span-3'}>
           <CardHeader>
             <div className="flex items-center justify-between gap-2">
               <CardTitle className="text-base">Herd List</CardTitle>
