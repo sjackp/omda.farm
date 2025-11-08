@@ -9,6 +9,7 @@ const NAV = [
   { href: '/herd', label: 'Herd', icon: 'pets' },
   { href: '/groups', label: 'Groups', icon: 'fence' },
   { href: '/feed', label: 'Feed', icon: 'grass' },
+  { href: '/vaccines', label: 'Vaccines', icon: 'vaccines' },
   { href: '/sales', label: 'Sales', icon: 'receipt_long' },
   { href: '/expenses', label: 'Expenses', icon: 'paid' },
   { href: '/finance', label: 'Finance', icon: 'account_balance_wallet' },

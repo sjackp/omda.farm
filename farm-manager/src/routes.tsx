@@ -13,6 +13,7 @@ import Weights from './pages/Weights'
 import Cycle from './pages/Cycle'
 import Settings from './pages/Settings'
 import Cow from './pages/Cow'
+import Vaccines from './pages/Vaccines'
 
 export default function AppRoutes() {
   const { user, status } = useAuth()
@@ -46,6 +47,7 @@ export default function AppRoutes() {
         <Route path="/herd" component={Herd} />
         <Route path="/groups" component={Groups} />
         <Route path="/feed" component={Feed} />
+        <Route path="/vaccines" component={Vaccines} />
         <Route path="/weights" component={Weights} />
         <Route path="/sales" component={Sales} />
         <Route path="/expenses" component={Expenses} />

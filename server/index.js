@@ -554,6 +554,210 @@ app.post('/api/feed/usage', async (req, res) => {
     res.status(500).json({ error: String(e.message || e) })
   }
 })
+
+// Vaccines
+app.get('/api/vaccines', async (_req, res) => {
+  try {
+    const { rows } = await query('select id, name, recurrence_days, notes, created_at from public.vaccine order by name asc')
+    res.json(rows)
+  } catch (e) {
+    res.status(500).json({ error: String(e.message || e) })
+  }
+})
+
+app.post('/api/vaccines', async (req, res) => {
+  const { name, recurrence_days, notes } = req.body || {}
+  if (!name || !Number.isInteger(recurrence_days) || recurrence_days <= 0) {
+    return res.status(400).json({ error: 'name and positive integer recurrence_days are required' })
+  }
+  const trimmedName = String(name).trim()
+  if (!trimmedName) return res.status(400).json({ error: 'name is required' })
+  try {
+    const { rows } = await query(
+      'insert into public.vaccine (name, recurrence_days, notes) values ($1, $2, $3) returning id, name, recurrence_days, notes, created_at',
+      [trimmedName, recurrence_days, notes ?? null]
+    )
+    res.status(201).json(rows[0])
+  } catch (e) {
+    const message = String(e.message || e)
+    if (message.toLowerCase().includes('duplicate key value')) {
+      return res.status(409).json({ error: 'Vaccine already exists' })
+    }
+    res.status(500).json({ error: message })
+  }
+})
+
+app.patch('/api/vaccines/:id', async (req, res) => {
+  const id = Number(req.params.id)
+  const { name, recurrence_days, notes } = req.body || {}
+  if (!id) return res.status(400).json({ error: 'id is required' })
+  // Build dynamic update based on provided fields
+  const fields = []
+  const values = []
+  let idx = 1
+  if (typeof name === 'string') {
+    const trimmed = name.trim()
+    if (!trimmed) return res.status(400).json({ error: 'name cannot be empty' })
+    fields.push(`name = $${idx++}`); values.push(trimmed)
+  }
+  if (recurrence_days !== undefined) {
+    if (!Number.isInteger(recurrence_days) || recurrence_days <= 0) return res.status(400).json({ error: 'recurrence_days must be a positive integer' })
+    fields.push(`recurrence_days = $${idx++}`); values.push(recurrence_days)
+  }
+  if (typeof notes === 'string') {
+    const trimmedNotes = notes.trim()
+    fields.push(`notes = $${idx++}`); values.push(trimmedNotes || null)
+  }
+  if (fields.length === 0) return res.status(400).json({ error: 'No fields to update' })
+  values.push(id)
+  try {
+    const { rows } = await query(
+      `update public.vaccine set ${fields.join(', ')} where id = $${idx} returning id, name, recurrence_days, notes, created_at`,
+      values
+    )
+    if (!rows.length) return res.status(404).json({ error: 'Not found' })
+    res.json(rows[0])
+  } catch (e) {
+    const message = String(e.message || e)
+    if (message.toLowerCase().includes('duplicate key value')) {
+      return res.status(409).json({ error: 'Vaccine name already exists' })
+    }
+    res.status(500).json({ error: message })
+  }
+})
+
+// Vaccination events
+app.get('/api/vaccinations', async (req, res) => {
+  const cowId = Number(req.query.cow_id)
+  const cycleId = Number(req.query.cycle_id)
+  const vaccineId = Number(req.query.vaccine_id)
+  const from = req.query.from ? String(req.query.from) : null
+  const to = req.query.to ? String(req.query.to) : null
+  try {
+    // Build where clause
+    const clauses = []
+    const params = []
+    if (Number.isFinite(cowId)) { params.push(cowId); clauses.push(`ve.cow_id = $${params.length}`) }
+    if (Number.isFinite(vaccineId)) { params.push(vaccineId); clauses.push(`ve.vaccine_id = $${params.length}`) }
+    if (Number.isFinite(cycleId)) { params.push(cycleId); clauses.push(`c.cycle_id = $${params.length}`) }
+    if (from) { params.push(from); clauses.push(`ve.event_date >= $${params.length}`) }
+    if (to) { params.push(to); clauses.push(`ve.event_date <= $${params.length}`) }
+    const where = clauses.length ? `where ${clauses.join(' and ')}` : ''
+    const { rows } = await query(
+      `select ve.*, to_jsonb(c) - 'created_at' as cow, to_jsonb(v) - 'created_at' as vaccine
+         from public.vaccination_event ve
+         join public.cow c on c.id = ve.cow_id
+         join public.vaccine v on v.id = ve.vaccine_id
+        ${where}
+        order by ve.event_date desc, ve.created_at desc`,
+      params
+    )
+    res.json(rows)
+  } catch (e) {
+    res.status(500).json({ error: String(e.message || e) })
+  }
+})
+
+app.post('/api/vaccinations', async (req, res) => {
+  const { cow_id, vaccine_id, event_date, notes } = req.body || {}
+  if (!cow_id || !vaccine_id || !event_date) {
+    return res.status(400).json({ error: 'cow_id, vaccine_id, event_date are required' })
+  }
+  try {
+    const { rows } = await query(
+      `insert into public.vaccination_event (cow_id, vaccine_id, event_date, notes)
+       values ($1, $2, $3, $4)
+       on conflict (cow_id, vaccine_id, event_date) do nothing
+       returning *`,
+      [cow_id, vaccine_id, event_date, notes ?? null]
+    )
+    // If conflict (duplicate), rows may be empty; return 200 with info
+    if (rows.length === 0) {
+      return res.status(200).json({ skipped: true, reason: 'duplicate', cow_id, vaccine_id, event_date })
+    }
+    res.status(201).json(rows[0])
+  } catch (e) {
+    res.status(500).json({ error: String(e.message || e) })
+  }
+})
+
+app.post('/api/vaccinations/bulk', async (req, res) => {
+  const { cow_ids, vaccine_ids, event_date, notes } = req.body || {}
+  const cows = Array.isArray(cow_ids) ? cow_ids.map(Number).filter((n) => Number.isFinite(n) && n > 0) : []
+  const vaccines = Array.isArray(vaccine_ids) ? vaccine_ids.map(Number).filter((n) => Number.isFinite(n) && n > 0) : []
+  if (cows.length === 0 || vaccines.length === 0 || !event_date) {
+    return res.status(400).json({ error: 'cow_ids[], vaccine_ids[], event_date are required' })
+  }
+  const totalCombos = cows.length * vaccines.length
+  try {
+    const { rowCount } = await query(
+      `
+      with cows as (select unnest($1::bigint[]) as cow_id),
+           vaccines as (select unnest($2::bigint[]) as vaccine_id)
+      insert into public.vaccination_event (cow_id, vaccine_id, event_date, notes)
+      select c.cow_id, v.vaccine_id, $3::date, $4::text
+        from cows c
+        cross join vaccines v
+      on conflict (cow_id, vaccine_id, event_date) do nothing
+      `,
+      [cows, vaccines, event_date, notes ?? null]
+    )
+    const inserted = rowCount || 0
+    const skipped_duplicates = totalCombos - inserted
+    res.status(201).json({ inserted, skipped_duplicates, total: totalCombos })
+  } catch (e) {
+    res.status(500).json({ error: String(e.message || e) })
+  }
+})
+
+// Vaccines due
+app.get('/api/vaccines/due', async (req, res) => {
+  const cycleId = Number(req.query.cycle_id)
+  const withinDays = Number(req.query.within_days ?? 0)
+  const vaccineId = Number(req.query.vaccine_id)
+  if (!Number.isFinite(cycleId) || cycleId <= 0) return res.status(400).json({ error: 'cycle_id is required' })
+  const params = [cycleId, withinDays]
+  const filterVaccine = Number.isFinite(vaccineId) ? 'and v.id = $3' : ''
+  if (filterVaccine) params.push(vaccineId)
+  try {
+    const { rows } = await query(
+      `
+      with cows as (
+        select id as cow_id
+          from public.cow
+         where cycle_id = $1
+           and lower(status::text) = 'active'
+      ),
+      last_events as (
+        select cow_id, vaccine_id, max(event_date) as last_event_date
+          from public.vaccination_event
+         group by cow_id, vaccine_id
+      )
+      select
+        c.cow_id,
+        v.id as vaccine_id,
+        le.last_event_date,
+        case
+          when le.last_event_date is null then current_date
+          else (le.last_event_date + (v.recurrence_days * interval '1 day'))::date
+        end as next_due_date
+      from cows c
+      cross join public.vaccine v
+      left join last_events le on le.cow_id = c.cow_id and le.vaccine_id = v.id
+      where (
+        le.last_event_date is null
+        or (le.last_event_date + (v.recurrence_days * interval '1 day'))::date <= (current_date + ($2 || ' days')::interval)::date
+      )
+      ${filterVaccine}
+      order by next_due_date asc, c.cow_id asc, v.id asc
+      `,
+      params
+    )
+    res.json(rows)
+  } catch (e) {
+    res.status(500).json({ error: String(e.message || e) })
+  }
+})
 app.listen(process.env.PORT || 1988)
 
 

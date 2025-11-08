@@ -128,6 +128,25 @@ CREATE TABLE public.sale (
   CONSTRAINT sale_cow_id_fkey FOREIGN KEY (cow_id) REFERENCES public.cow(id),
   CONSTRAINT sale_buyer_id_fkey FOREIGN KEY (buyer_id) REFERENCES public.buyer(id)
 );
+CREATE TABLE public.vaccination_event (
+  id bigint NOT NULL DEFAULT nextval('vaccination_event_id_seq'::regclass),
+  cow_id bigint NOT NULL,
+  vaccine_id bigint NOT NULL,
+  event_date date NOT NULL,
+  notes text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT vaccination_event_pkey PRIMARY KEY (id),
+  CONSTRAINT vaccination_event_cow_id_fkey FOREIGN KEY (cow_id) REFERENCES public.cow(id),
+  CONSTRAINT vaccination_event_vaccine_id_fkey FOREIGN KEY (vaccine_id) REFERENCES public.vaccine(id)
+);
+CREATE TABLE public.vaccine (
+  id bigint NOT NULL DEFAULT nextval('vaccine_id_seq'::regclass),
+  name character varying NOT NULL UNIQUE,
+  recurrence_days integer NOT NULL CHECK (recurrence_days > 0),
+  notes text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT vaccine_pkey PRIMARY KEY (id)
+);
 CREATE TABLE public.weigh_event (
   id bigint NOT NULL DEFAULT nextval('weigh_event_id_seq'::regclass),
   cow_id bigint NOT NULL,

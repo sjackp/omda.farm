@@ -1,5 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
 import { Users, Wheat, Receipt, Wallet } from 'lucide-react'
+import { Link } from 'wouter'
+import { useVaccinesDue } from '../hooks/vaccines'
 
 function Stat({ title, value, icon }: { title: string; value: string; icon: React.ReactNode }) {
   return (
@@ -17,6 +19,7 @@ function Stat({ title, value, icon }: { title: string; value: string; icon: Reac
 }
 
 export default function Dashboard() {
+  const { data: due = [], isLoading: dueLoading } = useVaccinesDue({ within_days: 7 })
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -32,6 +35,26 @@ export default function Dashboard() {
         <Stat title="MTD Expenses" value="EGP 0" icon={<Receipt className="h-5 w-5" />} />
         <Stat title="MTD Profit" value="EGP 0" icon={<Wallet className="h-5 w-5" />} />
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Vaccines due in 7 days</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {dueLoading ? (
+            <div className="text-sm text-slate-500">Loading…</div>
+          ) : (
+            <div className="flex items-center justify-between">
+              <div className="text-sm">
+                {due.length === 0 ? 'Nothing due soon.' : `${due.length} item(s) due soon.`}
+              </div>
+              <Link href="/vaccines" className="text-blue-600 text-sm hover:underline">
+                Review
+              </Link>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
