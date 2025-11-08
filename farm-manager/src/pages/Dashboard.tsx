@@ -33,25 +33,14 @@ export default function Dashboard() {
   const { data: expenses = [], isLoading: exLoading } = useExpenses()
   const { data: sales = [], isLoading: salesLoading } = useSales()
 
-  const now = new Date()
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10)
-  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10)
-
-  function withinMonth(dateStr: string): boolean {
-    return dateStr >= monthStart && dateStr <= monthEnd
-  }
-
   const kpis = useMemo(() => {
     const headcount = (cows || []).filter((c: any) => c.status === 'active').length
     const feedOnHand = (onHand || []).reduce((acc: number, row: any) => acc + Number(row.on_hand_kg || 0), 0)
-    const mtdExpenses = (expenses || [])
-      .filter((e: any) => withinMonth(e.expense_date))
-      .reduce((acc: number, e: any) => acc + Number(e.amount || 0), 0)
-    const mtdRevenue = (sales || [])
-      .filter((s: any) => withinMonth(s.date_sold))
-      .reduce((acc: number, s: any) => acc + (Number(s.price_per_kg) * Number(s.weight_at_sale_kg || 0)), 0)
-    const mtdProfit = mtdRevenue - mtdExpenses
-    return { headcount, feedOnHand, mtdExpenses, mtdProfit }
+    const soldCount = (sales || []).length
+    const revenue = (sales || []).reduce((acc: number, s: any) => acc + (Number(s.price_per_kg) * Number(s.weight_at_sale_kg || 0)), 0)
+    const expenseTotal = (expenses || []).reduce((acc: number, e: any) => acc + Number(e.amount || 0), 0)
+    const profit = revenue - expenseTotal
+    return { headcount, feedOnHand, soldCount, revenue, expenseTotal, profit }
   }, [cows, onHand, expenses, sales])
 
   const loading = cowsLoading || onHandLoading || exLoading || salesLoading
@@ -96,10 +85,34 @@ export default function Dashboard() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat title="Headcount" value={loading ? '—' : String(kpis.headcount)} icon={<Users className="h-5 w-5" />} />
+        <Stat title="Cow Count" value={loading ? '—' : String(kpis.headcount)} icon={<Users className="h-5 w-5" />} />
         <Stat title="Feed on-hand (kg)" value={loading ? '—' : kpis.feedOnHand.toLocaleString()} icon={<Wheat className="h-5 w-5" />} />
-        <Stat title="MTD Expenses" value={loading ? '—' : `EGP ${Math.round(kpis.mtdExpenses).toLocaleString()}`} icon={<Receipt className="h-5 w-5" />} />
-        <Stat title="MTD Profit" value={loading ? '—' : `EGP ${Math.round(kpis.mtdProfit).toLocaleString()}`} icon={<Wallet className="h-5 w-5" />} />
+        <Stat title="Cows Sold (cycle)" value={loading ? '—' : String(kpis.soldCount)} icon={<Receipt className="h-5 w-5" />} />
+        <Card>
+          <CardHeader className="flex items-center justify-between pb-2">
+            <CardTitle className="text-sm text-slate-600 dark:text-slate-300">Finance (cycle)</CardTitle>
+            <div className="text-blue-600"><Wallet className="h-5 w-5" /></div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-sm space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="opacity-80">Revenue</span>
+                <span className="font-medium">{loading ? '—' : `EGP ${Math.round(kpis.revenue).toLocaleString()}`}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="opacity-80">Expenses</span>
+                <span className="font-medium">{loading ? '—' : `EGP ${Math.round(kpis.expenseTotal).toLocaleString()}`}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="opacity-80">Profit</span>
+                <span className="font-medium">{loading ? '—' : `EGP ${Math.round(kpis.profit).toLocaleString()}`}</span>
+              </div>
+            </div>
+            <div className="mt-2 text-xs text-right">
+              <Link href="/finance" className="text-blue-600 hover:underline">Open Finance</Link>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <Card>
