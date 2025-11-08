@@ -4,6 +4,7 @@ import { useCurrentCycle } from '../hooks/cycles'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table'
 import Button from '../components/ui/button'
+import { formatHumanDate } from '../lib/utils'
 import { Badge } from '../components/ui/badge'
 
 export default function Expenses() {
@@ -208,7 +209,7 @@ export default function Expenses() {
                   const cat = (categories || []).find((c) => c.id === ex.expense_category_id)
                   return (
                     <TableRow key={ex.id}>
-                      <TableCell>{ex.expense_date}</TableCell>
+                      <TableCell>{formatHumanDate(ex.expense_date)}</TableCell>
                       <TableCell>{cat?.name ?? ex.expense_category_id}</TableCell>
                       <TableCell>{ex.description || ''}</TableCell>
                       <TableCell className="text-right">{ex.currency_code} {Number(ex.amount).toLocaleString()}</TableCell>

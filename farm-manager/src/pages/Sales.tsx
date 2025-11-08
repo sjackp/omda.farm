@@ -5,6 +5,7 @@ import { apiGet, apiPost } from '../lib/api'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table'
 import Button from '../components/ui/button'
+import { formatHumanDate } from '../lib/utils'
 
 type SaleLine = {
   id: string
@@ -394,7 +395,7 @@ export default function Sales() {
                   const total = Number(s.price_per_kg) * Number(s.weight_at_sale_kg)
                   return (
                     <TableRow key={s.id}>
-                      <TableCell>{s.date_sold}</TableCell>
+                      <TableCell>{formatHumanDate(s.date_sold)}</TableCell>
                       <TableCell>{s.buyer?.name ?? s.buyer_id}</TableCell>
                       <TableCell>{s.cow?.external_id ?? s.cow_id}</TableCell>
                       <TableCell className="text-right">{Number(s.weight_at_sale_kg).toLocaleString()}</TableCell>

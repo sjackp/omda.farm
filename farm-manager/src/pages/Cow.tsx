@@ -9,6 +9,7 @@ import { apiGet } from '../lib/api'
 import type { Cow as CowType } from '../hooks/cows'
 import { useSales } from '../hooks/sales'
 import { useCurrentCycle } from '../hooks/cycles'
+import { formatHumanDate, formatMonthDay } from '../lib/utils'
 
 export default function Cow({ id }: { id: number }) {
   const [cow, setCow] = useState<CowType | null>(null)
@@ -110,7 +111,7 @@ export default function Cow({ id }: { id: number }) {
           <CardHeader className="pb-2"><CardTitle className="text-base flex items-center gap-2"><Calendar className="w-4 h-4"/> Purchased</CardTitle></CardHeader>
           <CardContent className="text-sm">
             <div className="flex items-center justify-between">
-              <span>{cow?.purchase_date ? new Date(cow.purchase_date).toLocaleDateString() : '—'}</span>
+              <span>{cow?.purchase_date ? formatHumanDate(cow.purchase_date) : '—'}</span>
               <span className="font-medium">{cow?.purchase_price != null ? `${cow.purchase_price} ${cow?.purchase_currency_code ?? 'EGP'}` : '—'}</span>
             </div>
           </CardContent>
@@ -119,7 +120,7 @@ export default function Cow({ id }: { id: number }) {
           <CardHeader className="pb-2"><CardTitle className="text-base flex items-center gap-2"><WeightIcon className="w-4 h-4"/> Current</CardTitle></CardHeader>
           <CardContent className="text-sm">
             <div className="flex items-center justify-between">
-              <span>{active ? new Date(active.date).toLocaleDateString() : '—'}</span>
+              <span>{active ? formatHumanDate(active.date) : '—'}</span>
               <span className="font-medium">{active ? `${active.weight} kg` : '—'}</span>
             </div>
             <div className="my-3 h-px bg-slate-200 dark:bg-slate-800" />
@@ -166,7 +167,7 @@ export default function Cow({ id }: { id: number }) {
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" opacity={0.25} />
-                    <XAxis dataKey="date" tickFormatter={(d: string) => new Date(d).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} tick={{ fontSize: 12, fill: 'currentColor', opacity: 0.8 }} />
+                    <XAxis dataKey="date" tickFormatter={(d: string) => formatMonthDay(d)} tick={{ fontSize: 12, fill: 'currentColor', opacity: 0.8 }} />
                     <YAxis dataKey="weight" tick={{ fontSize: 12, fill: 'currentColor', opacity: 0.8 }} width={40} />
                     {/* Removed built-in tooltip; we use a custom anchored tooltip with since-prev delta */}
                     <Line type="monotone" dataKey="weight" stroke="url(#lineGrad)" strokeWidth={3}
@@ -193,7 +194,7 @@ export default function Cow({ id }: { id: number }) {
                   className="absolute z-[2] rounded border bg-white/90 dark:bg-slate-900/80 backdrop-blur px-2 py-1 text-xs shadow-sm"
                   style={{ left: hoverXY.x, top: hoverXY.y - 8, transform: 'translate(-50%, -100%)' }}
                 >
-                  <div>{new Date(active.date).toLocaleDateString()}</div>
+                  <div>{formatHumanDate(active.date)}</div>
                   <div className="font-semibold">{active.weight} kg</div>
                   <div className="text-slate-500">
                     {selectedIndex > 0 ? `${(active.weight - points[selectedIndex - 1].weight).toFixed(1)} kg since prev` : ''}

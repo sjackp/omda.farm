@@ -1,0 +1,23 @@
+{
+  "cycleName": "Cycle 2024-04-29_to_2025-06-06",
+  "cycleStart": "2024-04-29",
+  "cycleEnd": "2025-06-06",
+  "counts": {
+    "buyers": 7,
+    "expenseCategories": 12,
+    "foodItems": 7,
+    "herdGroups": 4,
+    "cows": 17,
+    "cowAssignments": 17,
+    "weighEvents": 17,
+    "expenses": 21,
+    "sales": 17,
+    "feedSupply": 6,
+    "feedUsage": 466
+  },
+  "sources": [
+    "/mnt/Crucial/Github/omda.farm/Cows 1.xlsx",
+    "/mnt/Crucial/Github/omda.farm/Updated_Daily_Usage_Tracker_Linked.xlsx"
+  ],
+  "generatedAt": "2025-11-08T04:28:40.726Z"
+}

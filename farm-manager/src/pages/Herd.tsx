@@ -6,6 +6,7 @@ import { useGroups } from '../hooks/groups'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
 import { Link } from 'wouter'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table'
+import { formatHumanDate } from '../lib/utils'
 
 export default function Herd() {
   const { data: cows = [], isLoading, refetch } = useCows()
@@ -203,7 +204,7 @@ export default function Herd() {
                         <TableCell>{c.current_group_number ? `Group ${c.current_group_number}` : '-'}</TableCell>
                         <TableCell>{c.latest_weight_kg ?? '-'}</TableCell>
                         <TableCell className="capitalize">{c.status}</TableCell>
-                        <TableCell>{new Date(c.created_at).toLocaleDateString()}</TableCell>
+                        <TableCell>{formatHumanDate(c.created_at)}</TableCell>
                         <TableCell className="text-right">
                           <div className="inline-flex gap-2">
                             <button

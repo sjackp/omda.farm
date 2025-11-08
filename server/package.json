@@ -7,13 +7,17 @@
   "scripts": {
     "start": "node index.js",
     "db:apply:schema": "node scripts/run-sql.js ../farm-manager/supabase/schema.sql",
-    "db:apply:seeds": "node scripts/run-sql.js ../farm-manager/supabase/seeds.sql"
+    "db:apply:seeds": "node scripts/run-sql.js ../farm-manager/supabase/seeds.sql",
+    "extract:current": "node scripts/extract-current-cycle.mjs",
+    "db:import:current": "node scripts/run-sql.js imports/current_cycle/import.sql",
+    "db:normalize:categories": "node scripts/normalize-expense-categories.mjs"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "pg": "^8.12.0"
+    "pg": "^8.12.0",
+    "xlsx": "^0.18.5"
   }
 }
 

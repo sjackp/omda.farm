@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table'
 import { Badge } from '../components/ui/badge'
 import { useToast } from '../providers/ToastProvider'
+import { formatHumanDate } from '../lib/utils'
 
 export default function Feed() {
   const { data: onHand = [], isLoading: onHandLoading } = useFeedOnHand()
@@ -406,7 +407,7 @@ export default function Feed() {
               {!movLoading && filteredMovements.map((m: any) => {
                 const item = (items || []).find((f) => f.id === m.food_item_id)
                 const type = String(m.movement_type).toUpperCase()
-                const date = m.movement_date
+                const date = formatHumanDate(m.movement_date)
                 const target = type === 'USAGE' && m.usage_target_type === 'group' && m.group_id
                   ? `Group ${m.group_id}`
                   : ''

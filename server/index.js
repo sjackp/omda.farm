@@ -531,7 +531,7 @@ app.post('/api/feed/supply', async (req, res) => {
   try {
     const { rows } = await query(
       `insert into public.feed_ledger (cycle_id, food_item_id, movement_date, qty_kg, movement_type, unit_cost, total_cost, currency_code, expense_id, reference, notes)
-       values ($1, $2, $3, $4, 'SUPPLY', $5, $6, $7, $8, $9, $10) returning *`,
+       values ($1, $2, $3, $4, 'supply', $5, $6, $7, $8, $9, $10) returning *`,
       [cycle_id, food_item_id, movement_date || new Date().toISOString().slice(0, 10), qty_kg, unit_cost ?? null, total_cost ?? null, currency_code ?? null, expense_id ?? null, reference ?? null, notes ?? null]
     )
     res.status(201).json(rows[0])
@@ -546,7 +546,7 @@ app.post('/api/feed/usage', async (req, res) => {
   try {
     const { rows } = await query(
       `insert into public.feed_ledger (cycle_id, food_item_id, movement_date, qty_kg, movement_type, usage_target_type, group_id, cow_id, notes)
-       values ($1, $2, $3, $4, 'USAGE', $5, $6, $7, $8) returning *`,
+       values ($1, $2, $3, $4, 'usage', $5, $6, $7, $8) returning *`,
       [cycle_id, food_item_id, movement_date || new Date().toISOString().slice(0, 10), qty_kg, usage_target_type, group_id ?? null, cow_id ?? null, notes ?? null]
     )
     res.status(201).json(rows[0])

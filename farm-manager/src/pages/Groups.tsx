@@ -5,6 +5,7 @@ import { useFoodItems, useRecordUsage, useFeedMovements } from '../hooks/feed'
 import type { HerdGroup } from '../hooks/groups'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
 import { useToast } from '../providers/ToastProvider'
+import { formatHumanDate } from '../lib/utils'
 
 export default function Groups() {
   const { data: current } = useCurrentCycle()
@@ -118,7 +119,7 @@ export default function Groups() {
                         (() => {
                           const nameById: Record<number, string> = Object.fromEntries(foodItems.map((fi) => [fi.id, fi.name]))
                           const groupUsage = movements
-                            .filter((m) => m.movement_type === 'USAGE' && m.usage_target_type === 'group' && m.group_id === g.id)
+                            .filter((m) => String(m.movement_type).toUpperCase() === 'USAGE' && String(m.usage_target_type).toLowerCase() === 'group' && m.group_id === g.id)
                             .sort((a, b) => new Date(b.movement_date).getTime() - new Date(a.movement_date).getTime())
                           if (groupUsage.length === 0) {
                             return <div className="text-xs text-slate-500">No feed yet</div>
@@ -128,7 +129,7 @@ export default function Groups() {
                               <div className="truncate">{nameById[m.food_item_id] ?? `Item ${m.food_item_id}`}</div>
                               <div className="ml-2 flex items-center gap-3 text-xs text-slate-600">
                                 <span>{Number(m.qty_kg)} kg</span>
-                                <span>{new Date(m.movement_date).toLocaleDateString()}</span>
+                                <span>{formatHumanDate(m.movement_date)}</span>
                               </div>
                             </div>
                           ))

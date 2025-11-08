@@ -2,6 +2,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
 import { Users, Wheat, Receipt, Wallet } from 'lucide-react'
 import { Link } from 'wouter'
 import { useVaccinesDue } from '../hooks/vaccines'
+import { useCows } from '../hooks/cows'
+import { useFeedOnHand } from '../hooks/feed'
+import { useExpenses } from '../hooks/expenses'
+import { useSales } from '../hooks/sales'
+import { useMemo } from 'react'
 
 function Stat({ title, value, icon }: { title: string; value: string; icon: React.ReactNode }) {
   return (
@@ -20,6 +25,33 @@ function Stat({ title, value, icon }: { title: string; value: string; icon: Reac
 
 export default function Dashboard() {
   const { data: due = [], isLoading: dueLoading } = useVaccinesDue({ within_days: 7 })
+  const { data: cows = [], isLoading: cowsLoading } = useCows()
+  const { data: onHand = [], isLoading: onHandLoading } = useFeedOnHand()
+  const { data: expenses = [], isLoading: exLoading } = useExpenses()
+  const { data: sales = [], isLoading: salesLoading } = useSales()
+
+  const now = new Date()
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10)
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10)
+
+  function withinMonth(dateStr: string): boolean {
+    return dateStr >= monthStart && dateStr <= monthEnd
+  }
+
+  const kpis = useMemo(() => {
+    const headcount = (cows || []).filter((c: any) => c.status === 'active').length
+    const feedOnHand = (onHand || []).reduce((acc: number, row: any) => acc + Number(row.on_hand_kg || 0), 0)
+    const mtdExpenses = (expenses || [])
+      .filter((e: any) => withinMonth(e.expense_date))
+      .reduce((acc: number, e: any) => acc + Number(e.amount || 0), 0)
+    const mtdRevenue = (sales || [])
+      .filter((s: any) => withinMonth(s.date_sold))
+      .reduce((acc: number, s: any) => acc + (Number(s.price_per_kg) * Number(s.weight_at_sale_kg || 0)), 0)
+    const mtdProfit = mtdRevenue - mtdExpenses
+    return { headcount, feedOnHand, mtdExpenses, mtdProfit }
+  }, [cows, onHand, expenses, sales])
+
+  const loading = cowsLoading || onHandLoading || exLoading || salesLoading
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -30,10 +62,10 @@ export default function Dashboard() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat title="Headcount" value="0" icon={<Users className="h-5 w-5" />} />
-        <Stat title="Feed on-hand (kg)" value="0" icon={<Wheat className="h-5 w-5" />} />
-        <Stat title="MTD Expenses" value="EGP 0" icon={<Receipt className="h-5 w-5" />} />
-        <Stat title="MTD Profit" value="EGP 0" icon={<Wallet className="h-5 w-5" />} />
+        <Stat title="Headcount" value={loading ? '—' : String(kpis.headcount)} icon={<Users className="h-5 w-5" />} />
+        <Stat title="Feed on-hand (kg)" value={loading ? '—' : kpis.feedOnHand.toLocaleString()} icon={<Wheat className="h-5 w-5" />} />
+        <Stat title="MTD Expenses" value={loading ? '—' : `EGP ${Math.round(kpis.mtdExpenses).toLocaleString()}`} icon={<Receipt className="h-5 w-5" />} />
+        <Stat title="MTD Profit" value={loading ? '—' : `EGP ${Math.round(kpis.mtdProfit).toLocaleString()}`} icon={<Wallet className="h-5 w-5" />} />
       </div>
 
       <Card>
