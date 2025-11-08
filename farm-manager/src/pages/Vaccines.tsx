@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useVaccines, useCreateVaccine, useVaccinesDue, useVaccinations, useBulkVaccinations } from '../hooks/vaccines'
 import { useCows } from '../hooks/cows'
 import { useCurrentCycle } from '../hooks/cycles'
