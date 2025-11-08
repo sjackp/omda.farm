@@ -20,11 +20,7 @@ export default function Feed() {
   const [showCreateType, setShowCreateType] = useState(false)
   const [showRestock, setShowRestock] = useState(false)
 
-  const [supplyFoodId, setSupplyFoodId] = useState<number | ''>('')
-  const [supplyQty, setSupplyQty] = useState('')
-  const [unitCost, setUnitCost] = useState('')
-  const [supplyNotes, setSupplyNotes] = useState('')
-  const [submittingSupply, setSubmittingSupply] = useState(false)
+  
 
   
 
@@ -62,22 +58,7 @@ export default function Feed() {
     return max || 1
   }, [items, onHandByItem])
 
-  async function handleSupplySubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!currentCycle?.id || !supplyFoodId || !supplyQty) return
-    setSubmittingSupply(true)
-    await supply.mutate({
-      cycle_id: currentCycle.id,
-      food_item_id: Number(supplyFoodId),
-      qty_kg: Number(supplyQty),
-      unit_cost: unitCost ? Number(unitCost) : undefined,
-      notes: supplyNotes || undefined,
-    })
-    setSubmittingSupply(false)
-    setSupplyQty('')
-    setUnitCost('')
-    setSupplyNotes('')
-  }
+  
 
   const [bulkSelected, setBulkSelected] = useState<Record<number, boolean>>({})
   const [bulkQtyById, setBulkQtyById] = useState<Record<number, string>>({})
@@ -150,9 +131,7 @@ export default function Feed() {
       setNewFeedName('')
       setNewFeedUnit('kg')
       setNewFeedNotes('')
-      if (created?.id) {
-        setSupplyFoodId(created.id)
-      }
+      
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to create feed type'
       setCreateFeedError(message)
