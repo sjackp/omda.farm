@@ -42,7 +42,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <div className="w-full">
         <div className="flex">
           {/* Sidebar */}
-          <aside className="hidden lg:flex w-64 shrink-0 border-r bg-white dark:bg-slate-950 flex-col justify-between min-h-screen">
+          <aside className="hidden lg:flex w-64 shrink-0 border-r bg-white dark:bg-[#0f1110] flex-col justify-between min-h-screen">
             <div>
               <div className="h-14 flex items-center px-4 border-b font-semibold">Omda Farm</div>
               <nav className="p-2 space-y-1">
@@ -75,7 +75,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
           {/* Main column */}
           <div className="min-w-0 flex-1 flex flex-col">
-            <header className="h-14 border-b flex items-center px-3 gap-2 bg-white/80 dark:bg-slate-950/80 backdrop-blur supports-[backdrop-filter]:bg-white/50 dark:supports-[backdrop-filter]:bg-slate-950/50">
+            <header className="h-14 border-b flex items-center px-3 gap-2 bg-white/80 dark:bg-[#131614]/80 backdrop-blur supports-[backdrop-filter]:bg-white/50 dark:supports-[backdrop-filter]:bg-[#131614]/50">
               <button className="lg:hidden inline-flex items-center justify-center h-9 w-9 rounded border hover:bg-slate-50 dark:hover:bg-slate-900" onClick={() => setOpen((o) => !o)}>
                 <Menu className="h-5 w-5" />
               </button>

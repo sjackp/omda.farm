@@ -4,6 +4,7 @@ import { useGroups, useCreateGroup, useGroupStats } from '../hooks/groups'
 import { useFoodItems, useRecordUsage, useFeedMovements } from '../hooks/feed'
 import type { HerdGroup } from '../hooks/groups'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
+import Button from '../components/ui/button'
 import { useToast } from '../providers/ToastProvider'
 import { formatHumanDate } from '../lib/utils'
 import { Link } from 'wouter'
@@ -56,10 +57,10 @@ export default function Groups() {
           <p className="muted">Manage herd groups in the current cycle</p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="rounded border px-3 py-1" onClick={() => refetch()}>Refresh</button>
-          <button className="rounded border px-3 py-1" onClick={() => setShowCreate((v) => !v)}>
+          <Button variant="outline" onClick={() => refetch()}>Refresh</Button>
+          <Button variant="outline" onClick={() => setShowCreate((v) => !v)}>
             {showCreate ? 'Close' : 'Add Group'}
-          </button>
+          </Button>
         </div>
       </div>
 

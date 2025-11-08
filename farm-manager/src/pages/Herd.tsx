@@ -5,6 +5,7 @@ import { useCurrentCycle } from '../hooks/cycles'
 import { useGroups } from '../hooks/groups'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card'
 import { Link } from 'wouter'
+import Button from '../components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table'
 import { formatHumanDate } from '../lib/utils'
 
@@ -77,10 +78,10 @@ export default function Herd() {
           <p className="muted">Manage animals in the current cycle</p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="rounded border px-3 py-1" onClick={() => refetch()}>Refresh</button>
-          <button className="rounded border px-3 py-1" onClick={() => setShowCreate((v) => !v)}>
+          <Button variant="outline" onClick={() => refetch()}>Refresh</Button>
+          <Button variant="outline" onClick={() => setShowCreate((v) => !v)}>
             {showCreate ? 'Close' : 'Add Cow'}
-          </button>
+          </Button>
         </div>
       </div>
 
