@@ -1,9 +1,0 @@
-Workbook,Sheet,Rows,Columns,Candidate key(s)
-Cows 1.xlsx,Cow Group Summary,6,3,
-Cows 1.xlsx,Cow Quantity,17,5,Cow ID
-Cows 1.xlsx,Expenses,21,11,
-Cows 1.xlsx,Food Quantity,7,5,"Food Type, Remaing Supply (kg)"
-Cows 1.xlsx,Growth Tracker,17,5,Weight (kg)
-Cows 1.xlsx,Profit Summary,3,2,"Description, Amount ($)"
-Cows 1.xlsx,Selling,25,8,
-Updated_Daily_Usage_Tracker_Linked.xlsx,Daily Usage Tracker,1824,4,
