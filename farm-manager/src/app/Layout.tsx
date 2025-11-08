@@ -28,9 +28,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <div className="w-full">
         <div className="flex">
           {/* Sidebar */}
-          <aside className="hidden lg:flex w-64 shrink-0 border-r bg-white dark:bg-slate-950 flex-col">
-            <div className="h-14 flex items-center px-4 border-b font-semibold">Nazamly Farm</div>
-            <nav className="p-2 space-y-1">
+          <aside className="hidden lg:flex w-64 shrink-0 border-r bg-white dark:bg-slate-950 flex-col justify-between min-h-screen">
+            <div>
+              <div className="h-14 flex items-center px-4 border-b font-semibold">Omda Farm</div>
+              <nav className="p-2 space-y-1">
               {NAV.map((item) => {
                 const active = location === item.href
                 return (
@@ -42,15 +43,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     }`}
                   >
                     {typeof item.icon === 'string' ? (
-                      <span className="material-symbols-outlined mr-3">{item.icon}</span>
+                      <span className="material-symbols-outlined mr-3 text-blue-600">{item.icon}</span>
                     ) : (
-                      <span className="mr-3 inline-flex items-center">{item.icon}</span>
+                      <span className="mr-3 inline-flex items-center text-blue-600">{item.icon}</span>
                     )}
                     {item.label}
                   </Link>
                 )
               })}
-            </nav>
+              </nav>
+            </div>
+            <div className="px-4 py-3 border-t text-xs text-slate-500">
+              <div className="font-medium text-slate-700 dark:text-slate-300">Farm Manager</div>
+              <div>Powered by Nazamly</div>
+            </div>
           </aside>
 
           {/* Main column */}
@@ -59,7 +65,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <button className="lg:hidden inline-flex items-center justify-center h-9 w-9 rounded border hover:bg-slate-50 dark:hover:bg-slate-900" onClick={() => setOpen((o) => !o)}>
                 <Menu className="h-5 w-5" />
               </button>
-              <div className="font-semibold">Nazamly Farm Manager</div>
+              <div className="font-semibold">Omda Farm</div>
               <div className="ml-auto" />
               {user && (
                 <div className="hidden sm:flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300 mr-2">
