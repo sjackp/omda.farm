@@ -497,15 +497,73 @@ app.get('/api/feed/on-hand', async (req, res) => {
   if (!cycleId) return res.status(400).json({ error: 'cycle_id is required' })
   try {
     const { rows } = await query(
-      `select food_item_id,
-              coalesce(sum(case when lower(movement_type::text) in ('supply','opening','adjustment') then qty_kg else -qty_kg end), 0) as on_hand_kg
-         from public.feed_ledger
-        where cycle_id = $1
-        group by food_item_id
-        order by food_item_id asc`,
+      `select fl.food_item_id,
+              coalesce(
+                sum(
+                  case
+                    when lower(fl.movement_type::text) in ('supply','opening','adjustment') then abs(fl.qty_kg)
+                    when lower(fl.movement_type::text) = 'usage' then -abs(fl.qty_kg)
+                    else 0
+                  end
+                ),
+              0) as on_hand_kg
+         from public.feed_ledger fl
+        where fl.cycle_id = $1
+        group by fl.food_item_id
+        order by fl.food_item_id asc`,
       [cycleId]
     )
     res.json(rows)
+  } catch (e) {
+    res.status(500).json({ error: String(e.message || e) })
+  }
+})
+
+// Feed: quick debug insights
+app.get('/api/feed/debug', async (req, res) => {
+  const cycleId = Number(req.query.cycle_id)
+  if (!cycleId) return res.status(400).json({ error: 'cycle_id is required' })
+  try {
+    const movementCounts = await query(
+      `select lower(movement_type::text) as movement_type, count(*)::bigint as count
+         from public.feed_ledger
+        where cycle_id = $1
+        group by lower(movement_type::text)
+        order by 1`,
+      [cycleId]
+    )
+    const itemCounts = await query(
+      `select food_item_id, count(*)::bigint as count
+         from public.feed_ledger
+        where cycle_id = $1
+        group by food_item_id
+        order by food_item_id asc
+        limit 25`,
+      [cycleId]
+    )
+    const onHand = await query(
+      `select fl.food_item_id,
+              coalesce(
+                sum(
+                  case
+                    when lower(fl.movement_type::text) in ('supply','opening','adjustment') then abs(fl.qty_kg)
+                    when lower(fl.movement_type::text) = 'usage' then -abs(fl.qty_kg)
+                    else 0
+                  end
+                ),
+              0) as on_hand_kg
+         from public.feed_ledger fl
+        where fl.cycle_id = $1
+        group by fl.food_item_id
+        order by fl.food_item_id asc`,
+      [cycleId]
+    )
+    res.json({
+      cycle_id: cycleId,
+      movement_counts: movementCounts.rows,
+      item_counts: itemCounts.rows,
+      on_hand_preview: onHand.rows,
+    })
   } catch (e) {
     res.status(500).json({ error: String(e.message || e) })
   }
@@ -529,10 +587,11 @@ app.post('/api/feed/supply', async (req, res) => {
   const { cycle_id, food_item_id, movement_date, qty_kg, unit_cost, total_cost, currency_code, expense_id, reference, notes } = req.body || {}
   if (!cycle_id || !food_item_id || !qty_kg) return res.status(400).json({ error: 'cycle_id, food_item_id, qty_kg are required' })
   try {
+    const qty = Math.abs(Number(qty_kg))
     const { rows } = await query(
       `insert into public.feed_ledger (cycle_id, food_item_id, movement_date, qty_kg, movement_type, unit_cost, total_cost, currency_code, expense_id, reference, notes)
        values ($1, $2, $3, $4, 'supply', $5, $6, $7, $8, $9, $10) returning *`,
-      [cycle_id, food_item_id, movement_date || new Date().toISOString().slice(0, 10), qty_kg, unit_cost ?? null, total_cost ?? null, currency_code ?? null, expense_id ?? null, reference ?? null, notes ?? null]
+      [cycle_id, food_item_id, movement_date || new Date().toISOString().slice(0, 10), qty, unit_cost ?? null, total_cost ?? null, currency_code ?? null, expense_id ?? null, reference ?? null, notes ?? null]
     )
     res.status(201).json(rows[0])
   } catch (e) {
@@ -544,10 +603,11 @@ app.post('/api/feed/usage', async (req, res) => {
   const { cycle_id, food_item_id, movement_date, qty_kg, usage_target_type, group_id, cow_id, notes } = req.body || {}
   if (!cycle_id || !food_item_id || !qty_kg || !usage_target_type) return res.status(400).json({ error: 'cycle_id, food_item_id, qty_kg, usage_target_type are required' })
   try {
+    const qty = Math.abs(Number(qty_kg))
     const { rows } = await query(
       `insert into public.feed_ledger (cycle_id, food_item_id, movement_date, qty_kg, movement_type, usage_target_type, group_id, cow_id, notes)
        values ($1, $2, $3, $4, 'usage', $5, $6, $7, $8) returning *`,
-      [cycle_id, food_item_id, movement_date || new Date().toISOString().slice(0, 10), qty_kg, usage_target_type, group_id ?? null, cow_id ?? null, notes ?? null]
+      [cycle_id, food_item_id, movement_date || new Date().toISOString().slice(0, 10), qty, usage_target_type, group_id ?? null, cow_id ?? null, notes ?? null]
     )
     res.status(201).json(rows[0])
   } catch (e) {

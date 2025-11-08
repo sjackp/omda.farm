@@ -196,7 +196,9 @@ export function useFoodItems() {
     setLoading(true)
     try {
       const rows = await apiGet<FoodItem[]>('/api/food-items')
-      setData(rows)
+      // Ensure ids are numbers for consistent keying/comparisons in UI
+      const normalized = (rows ?? []).map((r: any) => ({ ...r, id: Number(r.id) }))
+      setData(normalized)
     } catch (e) {
       setError(e)
     } finally {

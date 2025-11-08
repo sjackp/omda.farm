@@ -42,6 +42,14 @@ export default function Feed() {
     return map
   }, [onHand])
 
+  const nameById = useMemo(() => {
+    const map: Record<number, string> = {}
+    for (const it of (items || [])) {
+      map[Number(it.id)] = it.name
+    }
+    return map
+  }, [items])
+
   const filteredMovements = useMemo(() => {
     return (movements || []).filter((m: any) => {
       if (filterType !== 'ALL' && String(m.movement_type).toUpperCase() !== filterType) return false
@@ -228,7 +236,7 @@ export default function Feed() {
           {!onHandLoading && !itemsLoading && (items || []).length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {(items || []).map((it) => {
-                const qty = onHandByItem.get(it.id) || 0
+                const qty = onHandByItem.get(Number(it.id)) ?? 0
                 const low = qty <= 25
                 const percent = Math.min(100, Math.max(0, (qty / maxOnHand) * 100))
                 const ringColor = low ? '#f43f5e' : '#10b981'
@@ -405,7 +413,6 @@ export default function Feed() {
                 </TableRow>
               )}
               {!movLoading && filteredMovements.map((m: any) => {
-                const item = (items || []).find((f) => f.id === m.food_item_id)
                 const type = String(m.movement_type).toUpperCase()
                 const date = formatHumanDate(m.movement_date)
                 const target = type === 'USAGE' && m.usage_target_type === 'group' && m.group_id
@@ -414,7 +421,7 @@ export default function Feed() {
                 return (
                   <TableRow key={m.id}>
                     <TableCell>{date}</TableCell>
-                    <TableCell>{item?.name ?? `Item ${m.food_item_id}`}</TableCell>
+                    <TableCell>{nameById[Number(m.food_item_id)] ?? `Item ${m.food_item_id}`}</TableCell>
                     <TableCell>{type}</TableCell>
                     <TableCell className="text-right">{Number(m.qty_kg).toLocaleString()}</TableCell>
                     <TableCell>{target}</TableCell>
