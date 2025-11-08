@@ -167,11 +167,11 @@ export default function Cow({ id }: { id: number }) {
           <CardContent className="text-sm">
             <div className="flex items-center justify-between">
               <span>{cow?.purchase_date ? formatHumanDate(cow.purchase_date) : '—'}</span>
-              <span className="font-medium">{cow?.purchase_price != null ? `${cow.purchase_price} ${cow?.purchase_currency_code ?? 'EGP'}` : '—'}</span>
+              <span className="font-medium">{purchasePricePerKg != null ? `${(purchasePricePerKg).toFixed(2)} ${cow?.purchase_currency_code ?? 'EGP'}/kg` : '—'}</span>
             </div>
             <div className="mt-1 flex items-center justify-between text-xs opacity-80">
-              <span>Price per kg</span>
-              <span>{purchasePricePerKg != null ? `${(purchasePricePerKg).toFixed(2)} ${cow?.purchase_currency_code ?? 'EGP'}/kg` : '—'}</span>
+              <span>Total price</span>
+              <span>{cow?.purchase_price != null ? `${cow.purchase_currency_code ?? 'EGP'} ${Math.round(Number(cow.purchase_price)).toLocaleString()}` : '—'}</span>
             </div>
           </CardContent>
         </Card>
@@ -200,7 +200,7 @@ export default function Cow({ id }: { id: number }) {
             <CardHeader className="pb-2"><CardTitle className="text-base flex items-center gap-2"><DollarSign className="w-4 h-4"/> Sold</CardTitle></CardHeader>
             <CardContent className="text-sm">
               <div className="flex items-center justify-between">
-                <span>{new Date(sale.date_sold).toLocaleDateString()}</span>
+                <span>{formatHumanDate(sale.date_sold)}</span>
                 <span className="font-medium">{sale.price_per_kg} {sale.currency_code}/kg</span>
               </div>
               <div className="mt-1 flex items-center justify-between text-xs opacity-80">
