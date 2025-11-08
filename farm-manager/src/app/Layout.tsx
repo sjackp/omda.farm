@@ -44,7 +44,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           {/* Sidebar */}
           <aside className="hidden lg:flex w-64 shrink-0 border-r bg-white dark:bg-[#0f1110] flex-col justify-between min-h-screen">
             <div>
-              <div className="h-14 flex items-center px-4 border-b font-semibold">Omda Farm</div>
+              <div className="h-14 flex items-center px-4 border-b font-semibold">El Omda Farms</div>
               <nav className="p-2 space-y-1">
               {NAV.map((item) => {
                 const active = location === item.href
@@ -79,7 +79,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <button className="lg:hidden inline-flex items-center justify-center h-9 w-9 rounded border hover:bg-slate-50 dark:hover:bg-slate-900" onClick={() => setOpen((o) => !o)}>
                 <Menu className="h-5 w-5" />
               </button>
-              <div className="font-semibold">Omda Farm</div>
+              <div className="font-semibold inline-flex items-center gap-2">
+                <img src="/trace.svg" alt="El Omda Farms" className="h-6 w-6" />
+                <span>El Omda Farms</span>
+              </div>
               <div className="ml-auto" />
               {user && (
                 <div className="hidden sm:flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300 mr-2">
@@ -97,6 +100,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </button>
             </header>
             <main className="flex-1 overflow-auto p-4">{children}</main>
+            <footer className="border-t h-14 px-3 text-xs text-slate-500 flex flex-col items-center justify-center">
+              <div className="inline-flex items-center gap-2 text-slate-700 dark:text-slate-300">
+                <img src="/trace.svg" alt="El Omda Farms" className="h-5 w-5" />
+                <span className="font-medium">El Omda Farms</span>
+              </div>
+              <div>Powered by Nazamly</div>
+            </footer>
           </div>
         </div>
       </div>
