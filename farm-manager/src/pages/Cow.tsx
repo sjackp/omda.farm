@@ -104,6 +104,38 @@ export default function Cow({ id }: { id: number }) {
   }, [cow?.purchase_date, active])
   const avgDailyGain = gainToDate != null && daysOnFarm ? (gainToDate / daysOnFarm) : null
   const startDate = points.length ? points[0].date : null
+  const purchasePricePerKg = useMemo(() => {
+    if (cow?.purchase_price == null || startWeight == null || startWeight <= 0) return null
+    return Number(cow.purchase_price) / Number(startWeight)
+  }, [cow?.purchase_price, startWeight])
+  const saleTotalPrice = useMemo(() => {
+    if (!sale) return null
+    const w = Number(sale.weight_at_sale_kg || 0)
+    const p = Number(sale.price_per_kg || 0)
+    const total = w * p
+    return Number.isFinite(total) ? total : null
+  }, [sale])
+
+  // Y-axis domain: tighten to data range with padding
+  const yDomain = useMemo<[number, number]>(() => {
+    if (points.length === 0) return [0, 100]
+    const weights = points.map((p) => p.weight)
+    const minW = Math.min(...weights)
+    const maxW = Math.max(...weights)
+    const range = Math.max(0, maxW - minW)
+    const pad = Math.max(5, Math.round(range * 0.2)) // 20% padding, at least 5kg
+    let lower = Math.floor(minW - pad)
+    let upper = Math.ceil(maxW + pad)
+    if (range === 0) {
+      // Single point: show a sensible 50kg window around it
+      lower = Math.floor(minW - 25)
+      upper = Math.ceil(maxW + 25)
+    }
+    if (lower < 0) lower = 0
+    // Ensure a minimum span of 40kg for readability
+    if (upper - lower < 40) upper = lower + 40
+    return [lower, upper]
+  }, [points])
 
   const [hoverXY, setHoverXY] = useState<{ x: number; y: number } | null>(null)
 
@@ -137,6 +169,10 @@ export default function Cow({ id }: { id: number }) {
               <span>{cow?.purchase_date ? formatHumanDate(cow.purchase_date) : '—'}</span>
               <span className="font-medium">{cow?.purchase_price != null ? `${cow.purchase_price} ${cow?.purchase_currency_code ?? 'EGP'}` : '—'}</span>
             </div>
+            <div className="mt-1 flex items-center justify-between text-xs opacity-80">
+              <span>Price per kg</span>
+              <span>{purchasePricePerKg != null ? `${(purchasePricePerKg).toFixed(2)} ${cow?.purchase_currency_code ?? 'EGP'}/kg` : '—'}</span>
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -166,6 +202,10 @@ export default function Cow({ id }: { id: number }) {
               <div className="flex items-center justify-between">
                 <span>{new Date(sale.date_sold).toLocaleDateString()}</span>
                 <span className="font-medium">{sale.price_per_kg} {sale.currency_code}/kg</span>
+              </div>
+              <div className="mt-1 flex items-center justify-between text-xs opacity-80">
+                <span>Total price</span>
+                <span className="font-medium">{saleTotalPrice != null ? `${sale.currency_code} ${Math.round(saleTotalPrice).toLocaleString()}` : '—'}</span>
               </div>
             </CardContent>
           </Card>
@@ -199,7 +239,7 @@ export default function Cow({ id }: { id: number }) {
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" opacity={0.25} />
                     <XAxis dataKey="date" tickFormatter={(d: string) => formatMonthDay(d)} tick={{ fontSize: 12, fill: 'currentColor', opacity: 0.8 }} />
-                    <YAxis dataKey="weight" tick={{ fontSize: 12, fill: 'currentColor', opacity: 0.8 }} width={40} />
+                    <YAxis dataKey="weight" domain={yDomain as any} tick={{ fontSize: 12, fill: 'currentColor', opacity: 0.8 }} width={40} />
                     {/* Removed built-in tooltip; we use a custom anchored tooltip with since-prev delta */}
                     <Line type="monotone" dataKey="weight" stroke="url(#lineGrad)" strokeWidth={3}
                       dot={(props: any) => {
