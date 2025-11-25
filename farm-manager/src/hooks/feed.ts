@@ -29,7 +29,7 @@ export type FeedMovement = {
   created_at: string
 }
 
-export function useFeedOnHand(cycleId?: number) {
+export function useFeedOnHand() {
   const [data, setData] = useState<FeedOnHand[]>([])
   const [isLoading, setLoading] = useState(true)
   const [error, setError] = useState<unknown>(undefined)
