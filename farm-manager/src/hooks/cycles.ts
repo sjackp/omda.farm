@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { apiGet } from '../lib/api'
+import { emitGlobalRefresh, onGlobalRefresh } from '../lib/refresh'
 
 export type FarmCycle = {
   id: number
@@ -36,6 +37,13 @@ export function useCycles() {
     fetcher()
   }, [fetcher])
 
+  // Re-fetch whenever a global refresh is emitted (e.g. after mutating data or
+  // when the current cycle changes).
+  useEffect(() => {
+    const off = onGlobalRefresh(fetcher)
+    return off
+  }, [fetcher])
+
   return useMemo(() => ({ data, error, isLoading, refetch: fetcher }), [data, error, isLoading, fetcher])
 }
 
@@ -53,11 +61,12 @@ export function useCurrentCycle() {
 }
 
 export function useSetCurrentCycle() {
-  const { refetch } = useCycles()
-  const mutate = useCallback(async (cycleId: number) => {
+  const mutate = useCallback((cycleId: number) => {
     localStorage.setItem(CURRENT_KEY, String(cycleId))
-    await refetch()
-  }, [refetch])
+    // Let all data hooks (including cycles and anything that depends on the
+    // current cycle) know they should refresh.
+    emitGlobalRefresh()
+  }, [])
   return { mutate }
 }
 
