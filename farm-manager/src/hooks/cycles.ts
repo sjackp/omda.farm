@@ -18,7 +18,13 @@ export function useCycles() {
     setLoading(true)
     try {
       const rows = await apiGet<FarmCycle[]>('/api/cycles')
-      setData(rows)
+      // Normalize IDs coming from the API (which are strings for bigint columns)
+      // so that we always work with numeric IDs on the client.
+      const normalized = rows.map((r) => ({
+        ...r,
+        id: Number((r as any).id),
+      }))
+      setData(normalized)
     } catch (e) {
       setError(e)
     } finally {
