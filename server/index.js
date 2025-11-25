@@ -81,13 +81,12 @@ app.post('/api/cycles', async (req, res) => {
 })
 
 // Groups
-app.get('/api/groups', async (req, res) => {
-  const cycleId = Number(req.query.cycle_id)
-  if (!cycleId) return res.status(400).json({ error: 'cycle_id is required' })
+// Note: Groups are defined globally (shared across cycles). We keep the
+// cycle_id column for historical metadata, but do not filter by it here.
+app.get('/api/groups', async (_req, res) => {
   try {
     const { rows } = await query(
-      'select * from public.herd_group where cycle_id = $1 order by number asc',
-      [cycleId]
+      'select * from public.herd_group order by number asc'
     )
     res.json(rows)
   } catch (e) {
@@ -504,9 +503,9 @@ app.post('/api/food-items', async (req, res) => {
 })
 
 // Feed: on-hand summary and movements
-app.get('/api/feed/on-hand', async (req, res) => {
-  const cycleId = Number(req.query.cycle_id)
-  if (!cycleId) return res.status(400).json({ error: 'cycle_id is required' })
+// On-hand feed is global (across all cycles). Individual movements and costs
+// are still tracked per-cycle via the cycle_id column.
+app.get('/api/feed/on-hand', async (_req, res) => {
   try {
     const { rows } = await query(
       `select fl.food_item_id,
@@ -520,10 +519,8 @@ app.get('/api/feed/on-hand', async (req, res) => {
                 ),
               0) as on_hand_kg
          from public.feed_ledger fl
-        where fl.cycle_id = $1
         group by fl.food_item_id
-        order by fl.food_item_id asc`,
-      [cycleId]
+        order by fl.food_item_id asc`
     )
     res.json(rows)
   } catch (e) {

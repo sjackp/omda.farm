@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { apiGet, apiPatch, apiPost } from '../lib/api'
 import { emitGlobalRefresh, onGlobalRefresh } from '../lib/refresh'
-import { useCurrentCycle } from './cycles'
 
 export type HerdGroup = {
   id: number
@@ -14,30 +13,24 @@ export type HerdGroup = {
   created_at: string
 }
 
-export function useGroups(cycleId?: number) {
-  const current = useCurrentCycle()
-  const targetCycle = cycleId ?? current.data?.id
-
+// Groups are global (shared across cycles). We keep cycle_id on the row for
+// metadata but do not filter by it in this hook.
+export function useGroups(_cycleId?: number) {
   const [data, setData] = useState<HerdGroup[] | undefined>(undefined)
   const [isLoading, setLoading] = useState(true)
   const [error, setError] = useState<unknown>(undefined)
 
   const fetcher = useCallback(async () => {
-    if (!targetCycle) {
-      setData([])
-      setLoading(false)
-      return
-    }
     setLoading(true)
     try {
-      const rows = await apiGet<HerdGroup[]>(`/api/groups?cycle_id=${targetCycle}`)
+      const rows = await apiGet<HerdGroup[]>('/api/groups')
       setData(rows)
     } catch (e) {
       setError(e)
     } finally {
       setLoading(false)
     }
-  }, [targetCycle])
+  }, [])
 
   useEffect(() => {
     fetcher()

@@ -4,7 +4,9 @@ import { emitGlobalRefresh, onGlobalRefresh } from '../lib/refresh'
 import { useCurrentCycle } from './cycles'
 
 export type FeedOnHand = {
-  cycle_id: number
+  // On-hand is global across cycles; we keep cycle_id optional for backward
+  // compatibility with any existing data, but the UI does not depend on it.
+  cycle_id?: number
   food_item_id: number
   on_hand_kg: string | number
 }
@@ -28,29 +30,21 @@ export type FeedMovement = {
 }
 
 export function useFeedOnHand(cycleId?: number) {
-  const current = useCurrentCycle()
-  const targetCycle = cycleId ?? current.data?.id
-
   const [data, setData] = useState<FeedOnHand[]>([])
   const [isLoading, setLoading] = useState(true)
   const [error, setError] = useState<unknown>(undefined)
 
   const fetcher = useCallback(async () => {
-    if (!targetCycle) {
-      setData([])
-      setLoading(false)
-      return
-    }
     setLoading(true)
     try {
-      const rows = await apiGet<FeedOnHand[]>(`/api/feed/on-hand?cycle_id=${targetCycle}`)
+      const rows = await apiGet<FeedOnHand[]>('/api/feed/on-hand')
       setData(rows ?? [])
     } catch (e) {
       setError(e)
     } finally {
       setLoading(false)
     }
-  }, [targetCycle])
+  }, [])
 
   useEffect(() => {
     fetcher()
